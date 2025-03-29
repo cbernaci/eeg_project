@@ -27,12 +27,16 @@ This project implements a modular real-time EEG signal acquisition and processin
 ---
 
 ## 📦 Project Structure
+```plaintext
 eeg_project/ 
- ├── src/ # Core source code (serial, DSP, ring buffer)
- ├── include/ # Public header files 
- ├── tests/ # Unit tests (ring buffer, serial, DSP)
- ├── build/ # Compiled binaries 
- ├── firmware/ # Arduino code for EEG acquisition 
- ├── Makefile # Build system 
- └── README.md # You're here!
+├── src/ # Core source code (serial, DSP, ring buffer)
+├── include/ # Public header files 
+├── tests/ # Unit tests (ring buffer, serial, DSP)
+├── build/ # Compiled binaries 
+├── firmware/ # Arduino code for EEG acquisition 
+├── Makefile # Build system 
+└── README.md # You're here!
+
+
+
 
