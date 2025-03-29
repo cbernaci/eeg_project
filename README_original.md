@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Author: Catherine Bernaciak PhD
 Data: Jan - April 2025 (so far)
 
@@ -16,6 +15,3 @@ This project will contains just the EEG portion of the system and include:
 This project is designed to run on a Macbook M3 Pro and so I am using Apple Developer tools
 to get the most out of the M3 Pro chip. 
 
-=======
-# eeg_project
->>>>>>> 03ac163d1136eadc3c3acc89b76abc36b9b43cac
