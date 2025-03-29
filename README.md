@@ -1,36 +1,31 @@
 
 # 🧠 About eeg_project
 
-This project implements a modular real-time electroencephalogram (EEG) signal acquisition and 
-processing system in C, designed to communicate with a microcontroller (e.g., Arduino) serially 
-and perform signal processing and visualization on a MacBook. The goal is to understand neurofeedback
-systems by building my own. This requires first an EEG system, and second a feedback system to
-augment visual data based on brain frequencies. The goal is to teach the brain to balance itself in the
-time and frequency domains to potentially eliminate unwanted cognitive, emotional, and neurophysical 
-symptoms. 
+This project implements a real-time electroencephalogram (EEG) signal acquisition and 
+processing system in C.  The goal of this project is to gain some understanding of the
+time and frequency domains of the brain at the network level. 
 
-
-This phase of the project is just the EEG. The input to this system is a serial stream of digital voltage
-readings from the brain acquired by way of electrodes placed on different points of the scalp, and the output
-is real-time waveform data that has been processed with FFT's to extract frequency and time domain information.
-This output can then be fed to an audio-visual system that is continuously alters the sound and video to alert
-the human audio-visual system of perceived deviations from normal behavior.  The videos will be open-source  
-and changing their display will require help from other experts, and is saved for another project.
+The input to this system is a serial stream of digital voltage readings from the brain
+acquired by way of electrodes placed on different points of the scalp. The output is
+real-time waveform data that has been processed with FFT's to extract frequency and time
+domain information.
 
 This EEG project contains code for:
-- reading, amplification, filtering, and digitization of voltages from scalp using electrodes, breadboard, and microcontroller (firmware)
+- microcontroller firmware (Arduino/C++)
    - voltage readings are obtained using electrodes on scalp
-   - amplification and filtering of voltages is performed in analog domain on breadboard using op-amps and basic circuit components
+   - amplification and filtering is performed in analog domain using op-amps and basic circuit components
    - analog voltage signals are fed to a microcontroller's ADC and digitized (preliminarily using Arduino Uno)
    - digital voltage reading passed through USB port to Macbook
-- serial reading of digital data from microcontroller to Macbook M3 - uses a multi-threaded ring buffer data structure 
-- digital signal processing of signals on Macbook M3
-- plotting and visualization of signals in Metal and ImGui based GUI
+- serial reading of digital data (C)
+   - serial port of Macbook M3 using a multi-threaded ring buffer data structure 
+- digital signal processing of signals on Macbook M3 (C, Apple Accelerate vDSP)
+   - preprocessing (including filtering and noise removal)
+   - feature extraction by computing FFT and power spectral density for better visualization
+- GUI for plotting and visualization of signals (C, Apple Metal, ImGui)
+   - separate visualization thread using GPU acceleration 
 
 This project is designed to run on a Macbook M3 Pro and so I am using Apple Developer tools
 to get the most out of the M3 Pro chip. 
-
----
 
 ## 📦 Project Structure
 ```
@@ -43,8 +38,25 @@ eeg_project/
 ├── Makefile   # build tests or application
 └── README.md 
 ```
+
 ## Running Application
-For now, I am still building this and am working on the tests for the ring buffer. To run existing tests, go to /tests and type `make tests ; ./build/unit_test_ring_buffer`
+For now, I am still building this and am working on the tests for the ring buffer. To run
+existing tests, go to /tests and type `make tests ; ./build/unit_test_ring_buffer`
+
+
+# Follow-up Work
+The EEG project will be the first part of a neurofeedback system that will augment visual
+data based on brain frequencies. Specifically, the output of the EEG project will be fed
+to a neurofeedback system that will take detected deviations from optimal time and frequency
+domain behavior and use it to continously augment audo-visual data in real-time in a way that
+makes the video slow down, lose color, or be changed in subtle ways that are subconsciously 
+not desired by the brain.  The human audio-visual system detects the alterations and learns to 
+change it's connectivity and hence frequency and time domain output in a more optimal way such 
+that the audio-visual data it is collecting becomes more pleasant to view - colors brighten,
+movement quickens, music gets more appealing, etc.  The goal is to teach the brain to balance
+itself in the time and frequency domains to potentially eliminate unwanted cognitive, emotional, 
+and neurophysical symptoms.  The videos will be open-source and changing their sound and display
+will require help from other experts, and is saved for another project.
 
 ### Author: Catherine Bernaciak PhD
 
