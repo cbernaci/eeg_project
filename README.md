@@ -64,7 +64,9 @@ itself in the time and frequency domains to potentially eliminate unwanted cogni
 and neurophysical symptoms.  The videos will be open-source and changing their sound and display
 will require help from other experts, and is saved for another project.
 
-### Author: Catherine Bernaciak PhD
+### Author: 
+Catherine Bernaciak PhD
+cbernaci@andrew.cmu.edu
 
 
 
