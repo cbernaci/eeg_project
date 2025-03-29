@@ -18,4 +18,14 @@ to get the most out of the M3 Pro chip.
 
 =======
 # eeg_project
->>>>>>> 03ac163d1136eadc3c3acc89b76abc36b9b43cac
+
+# 🧠 Real-Time EEG Signal Processing System (C)
+
+This project implements a modular real-time EEG signal acquisition and processing system in C, designed to communicate with a microcontroller (e.g., Arduino) via serial and perform signal processing and visualization on a MacBook.
+
+
+---
+
+## 📦 Project Structure
+
+
