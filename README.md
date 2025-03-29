@@ -27,7 +27,7 @@ This EEG project contains code for:
 This project is designed to run on a Macbook M3 Pro and so I am using Apple Developer tools
 to get the most out of the M3 Pro chip. 
 
-## 📦 Project Structure
+# 📦 Project Structure
 ```
 eeg_project/ 
 ├── src/       # C source files for EEG application
@@ -39,12 +39,12 @@ eeg_project/
 └── README.md 
 ```
 
-## Running Application
+# 🚀 Running Application
 For now, I am still building this and am working on the tests for the ring buffer. To run
 existing tests, go to /tests and type `make tests ; ./build/unit_test_ring_buffer`
 
 
-# Follow-up Work: Neurofeedback
+# ✨ Follow-up Work: Neurofeedback
 The EEG project will be the first part of a neurofeedback system that will augment visual
 data based on brain frequencies. Specifically, the output of the EEG project will be fed
 to a neurofeedback system that will take detected deviations from optimal time and frequency
