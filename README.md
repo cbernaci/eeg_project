@@ -29,13 +29,24 @@ This project implements a modular real-time EEG signal acquisition and processin
 ## 📦 Project Structure
 ```plaintext
 eeg_project/ 
-├── src/ # Core source code (serial, DSP, ring buffer)
-├── include/ # Public header files 
-├── tests/ # Unit tests (ring buffer, serial, DSP)
-├── build/ # Compiled binaries 
-├── firmware/ # Arduino code for EEG acquisition 
-├── Makefile # Build system 
-└── README.md # You're here!
+├── src/ 
+├── include/ 
+├── tests/ 
+├── build/ 
+├── firmware/ 
+├── Makefile 
+└── README.md 
+
+
+
+> ✔️ This uses **triple backticks** \(```\) to start and end a code block, and declares it as `plaintext` so GitHub doesn’t try to syntax-highlight it weirdly.
+
+---
+
+### 💡 Copy this into your README as-is and you’ll get a clean, monospace box with your directory tree formatted perfectly.
+
+Want to add emojis or links to each folder section next? 😄
+
 
 
 ├─ dist
