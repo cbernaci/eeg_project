@@ -44,13 +44,15 @@ For now, I am still building this and am working on the tests for the ring buffe
 existing tests, go to /tests and type `make tests ; ./build/unit_test_ring_buffer`
 
 
-# Follow-up Work
+# Follow-up Work: Neurofeedback
 The EEG project will be the first part of a neurofeedback system that will augment visual
 data based on brain frequencies. Specifically, the output of the EEG project will be fed
 to a neurofeedback system that will take detected deviations from optimal time and frequency
 domain behavior and use it to continously augment audo-visual data in real-time in a way that
 makes the video slow down, lose color, or be changed in subtle ways that are subconsciously 
-not desired by the brain.  The human audio-visual system detects the alterations and learns to 
+not desired by the brain. 
+
+The human audio-visual system detects the alterations and learns to 
 change it's connectivity and hence frequency and time domain output in a more optimal way such 
 that the audio-visual data it is collecting becomes more pleasant to view - colors brighten,
 movement quickens, music gets more appealing, etc.  The goal is to teach the brain to balance
