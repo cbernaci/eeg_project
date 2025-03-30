@@ -24,9 +24,18 @@
 #include <math.h>
 #include "ring_buffer.h"
 
-int main() {
-   printf("//////// Running ring buffer edge tests ////////// \n");
 
-   printf("....... invalid initialization test....... \n");
+void test_invalid_init(ring_buffer *rb){
+   printf("[TEST] Invalid initialization ... \n");
+   assert(ring_buffer_init(rb, 0) == false);
+   printf("OK\n");
+}
+
+
+int main() {
+
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   test_invalid_init(rb);
+   free(rb);
    
 }
