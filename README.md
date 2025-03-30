@@ -29,7 +29,7 @@ This EEG project contains code for:
 This project is designed to run on a Macbook M3 Pro and so I am using Apple Developer tools
 to get the most out of the M3 Pro chip. 
 
-# 📦 Project Structure
+# 🌲 Project Structure
 ```
 eeg_project/ 
 ├── src/       # C source files for EEG application
@@ -54,7 +54,7 @@ Application is not ready - I am still in the testing and construction phase.
 The EEG project will be the first part of a neurofeedback system that will augment visual
 data based on brain frequencies. Specifically, the output of the EEG project will be fed
 to a neurofeedback system that will take detected deviations from optimal time and frequency
-domain behavior and use it to continously augment audo-visual data in real-time in a way that
+domain behavior and use it to continously augment audio-visual data in real-time in a way that
 makes the video slow down, lose color, or be changed in subtle ways that are subconsciously 
 not desired by the brain. 
 
