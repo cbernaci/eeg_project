@@ -162,7 +162,6 @@ void test_destroy(ring_buffer *rb){
 }
 
 int main() {
-   printf("========== Running ring buffer unit tests ==========\n");
 
    ring_buffer *rb = malloc(sizeof(ring_buffer));
    assert(ring_buffer_init(rb, 4) == true);
@@ -174,7 +173,6 @@ int main() {
    test_read_until_empty(rb); 
    test_destroy(rb);
   
-   printf("========== All ring buffer unit tests passed ==========\n");
 
 
 }
