@@ -17,12 +17,14 @@ This EEG project contains code for:
    - analog voltage signals are fed to a microcontroller's ADC and digitized (preliminarily using Arduino Uno)
    - digital voltage reading passed through USB port to Macbook
 - serial reading of digital data (C)
-   - serial port of Macbook M3 using a multi-threaded ring buffer data structure 
-- digital signal processing of signals on Macbook M3 (C, Apple Accelerate vDSP)
+   - HW connection is microcontroller USB to Macbook USB
+   - multi-threaded ring buffer data structure to handle real-time data stream
+- digital signal processing on Macbook M3 (C, Apple Accelerate vDSP)
    - preprocessing (including filtering and noise removal)
    - feature extraction by computing FFT and power spectral density for better visualization
 - GUI for plotting and visualization of signals (C, Apple Metal, ImGui)
    - separate visualization thread using GPU acceleration 
+   - GUI allowing for different FFT calculations, display options, etc.
 
 This project is designed to run on a Macbook M3 Pro and so I am using Apple Developer tools
 to get the most out of the M3 Pro chip. 
