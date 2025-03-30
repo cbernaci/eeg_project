@@ -26,6 +26,10 @@ tests: $(UNIT_TEST_BIN)
 $(UNIT_TEST_BIN): $(UNIT_TEST_OBJS)
 	$(CC) $(CFLAGS) $(UNIT_TEST_OBJS) -o $@
 
+memcheck: $(UNIT_TEST_BIN)
+	@echo "🔍 Running memory leak check with macOS 'leaks' tool..."
+	@leaks --atExit -- ./$(UNIT_TEST_BIN)
+
 eeg: $(EEG_BIN)
 
 $(EEG_BIN): $(EEG_OBJS)

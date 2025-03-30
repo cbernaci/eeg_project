@@ -31,12 +31,18 @@
  * capacity is maximum number of values to store in the buffer.
  * returns void
 */
-void ring_buffer_init(ring_buffer *rb, int capacity){
+bool ring_buffer_init(ring_buffer *rb, int capacity){
+   if(capacity <= 0){
+      return false; 
+   }
    rb->max_num_values = capacity;
    rb->buffer = malloc(sizeof(float)*rb->max_num_values);
+   if(!rb->buffer) return false; // occurs if insufficient memory
+
    rb->head = 0;
    rb->tail = 0;
    rb->curr_num_values = 0;
+   return true;
 }  
 
 /**

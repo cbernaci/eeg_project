@@ -49,7 +49,7 @@ typedef struct {
  * @param capacity Maximum number of values to store in the buffer.
  * @return void
 */
-void ring_buffer_init(ring_buffer *rb, int capacity);  
+bool ring_buffer_init(ring_buffer *rb, int capacity);  
 
 /**
  * @brief Write a float value into the ring buffer.

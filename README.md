@@ -46,7 +46,7 @@ To run existing tests:
 `make tests ; ./build/unit_test_ring_buffer`
 
 # 🚀 Running Application
-Application is not ready - I am still in the testing and construction phase
+Application is not ready - I am still in the testing and construction phase.
 
 # ✨ Follow-up Work: Neurofeedback
 The EEG project will be the first part of a neurofeedback system that will augment visual
