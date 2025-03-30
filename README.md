@@ -42,10 +42,10 @@ eeg_project/
 ```
 
 # 🤔 Running Tests 
-The tests that are currently implemented are unit tests for the ring buffer data structure. 
+The tests that are currently implemented are unit and edge tests for the ring buffer data structure. 
 To run existing tests:
 
-`make tests ; ./build/unit_test_ring_buffer`
+`make clean ; make test-all ; make memcheck`
 
 # 🚀 Running Application
 Application is not ready - I am still in the testing and construction phase.
