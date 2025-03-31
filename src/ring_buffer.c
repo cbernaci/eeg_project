@@ -90,22 +90,24 @@ bool ring_buffer_write(ring_buffer *rb, float32_t value){
  * Read a value from the head of the ring buffer.
  *
  * rb is pointer to the ring buffer instance.
- * return the float value read from head, head
- * is then incremented and wraps around if necessary. 
- * If empty, returns QUEUE_EMPTY
+ * result is a pointer to the float value to be read
+ * at head and then function returns true. 
+ * Head is incremented and wraps around if necessary. 
+ * If empty, returns false 
  */
-float ring_buffer_read(ring_buffer *rb){
+bool ring_buffer_read(ring_buffer *rb, float *result){
 
-   float result;
    // test if buffer is empty
-   //if(ring_buffer_empty(rb)){return QUEUE_EMPTY;}
-   if(ring_buffer_empty(rb)){return 42;}
-   // if not, return value from head
-   result = rb->buffer[rb->head];
+   if(ring_buffer_empty(rb)){
+      return false;
+   }
+
+   // if not empty , return value from head
+   *result = rb->buffer[rb->head];
    rb->curr_num_values--;
    // head increments or wraps around
    rb->head = (rb->head + 1) % rb->max_num_values;
-   return result;
+   return true;
 }
 
 /**
