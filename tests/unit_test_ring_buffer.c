@@ -8,12 +8,13 @@
  * - Read/write operations
  * - Empty and full state detection
  * - Basic wrap-around behavior
+ * - allocated memory is freed
  *
- * Tests are run using simple assert() statements.
+ * Tests are grouped into functional blocks and individually run using assert() statements.
  *
  * Notes:
  * - These are *unit tests* (small, fast, and isolated from external dependencies).
- * - These tests do not simulate multithreaded or stress scenarios (see stress tests).
+ * - These tests do not simulate edge, multithreaded, or stress scenarios 
  *
  * Author: Catherine Bernaciak PhD
  * Date: March 2025

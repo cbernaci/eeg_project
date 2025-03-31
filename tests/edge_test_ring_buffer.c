@@ -8,11 +8,9 @@
  * - Invalid initialization
  * - Writing to buffer with max_num_values = 1 
  * - Read from empty buffer 
- * - Write after full read
- * - Full wrap-around
  * - Alternating read/write pattern
  *
- * Tests are run using simple assert() statements.
+ * Tests are grouped into functional blocks and individually run using assert() statements.
  *
  * Author: Catherine Bernaciak PhD
  * Date: March 2025
