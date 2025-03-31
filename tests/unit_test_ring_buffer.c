@@ -83,27 +83,36 @@ void test_write_until_full(ring_buffer *rb){
 
 void test_read_until_empty(ring_buffer *rb){
    printf("[TEST] Read until empty ... \n");
-   // read 4 values to ring buffer
+   // read 4 values from ring buffer
    // ... read first value
-   ASSERT_FLOAT_EQ(ring_buffer_read(rb), 15.234f);
+   float value;
+   bool ok = ring_buffer_read(rb, &value); 
+   assert(ok);
+   ASSERT_FLOAT_EQ(value, 15.234f);
    assert(rb->head == 1);
    assert(rb->tail == 0);
    assert(rb->curr_num_values == 3);
 
    // ... read second value
-   ASSERT_FLOAT_EQ(ring_buffer_read(rb), 15.017f);
+   ok = ring_buffer_read(rb, &value); 
+   assert(ok);
+   ASSERT_FLOAT_EQ(value, 15.017f);
    assert(rb->head == 2);
    assert(rb->tail == 0);
    assert(rb->curr_num_values == 2);
 
    // ... read third value
-   ASSERT_FLOAT_EQ(ring_buffer_read(rb), 15.120f);
+   ok = ring_buffer_read(rb, &value); 
+   assert(ok);
+   ASSERT_FLOAT_EQ(value, 15.120f);
    assert(rb->head == 3);
    assert(rb->tail == 0);
    assert(rb->curr_num_values == 1);
 
    // ... read fourth value
-   ASSERT_FLOAT_EQ(ring_buffer_read(rb), 15.136f);
+   ok = ring_buffer_read(rb, &value); 
+   assert(ok);
+   ASSERT_FLOAT_EQ(value, 15.136f);
    assert(rb->head == 0);
    assert(rb->tail == 0);
    assert(rb->curr_num_values == 0);
@@ -112,7 +121,7 @@ void test_read_until_empty(ring_buffer *rb){
    printf("OK\n");
 }
 
-void test_wraparound_behavior(ring_buffer *rb){
+void test_wraparound(ring_buffer *rb){
    // note that buffer should have been emptied from full previous 
    // to this or else wraparound behavior is not being tested
 
@@ -171,6 +180,7 @@ int main() {
    test_empty_not_full(rb);
    test_write_until_full(rb); 
    test_read_until_empty(rb); 
+   test_wraparound(rb);
    test_destroy(rb);
   
 
