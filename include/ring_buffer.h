@@ -64,9 +64,10 @@ bool ring_buffer_write(ring_buffer *rb, float32_t value);
  * @brief Read a value from the ring buffer.
  *
  * @param rb Pointer to the ringBuffer instance.
- * @return The float value read. If empty, returns QUEUE_EMPTY
+ * @param result Pointer to the float value that's read.
+ * @return true is float value read, false if empty
  */
-float ring_buffer_read(ring_buffer *rb);               
+bool ring_buffer_read(ring_buffer *rb, float *result);               
 
 /**
  * @brief Check if the ring buffer is empty.
