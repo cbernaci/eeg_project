@@ -16,7 +16,6 @@
  *   - Destroy/free memory with ring_buffer_destroy()
  *
  * Author: Catherine Bernaciak PhD
- * she's a gypsy and she's trouble
  * Date: March 2025
  */
 
@@ -117,8 +116,14 @@ bool ring_buffer_read(ring_buffer *rb, float *result){
  * return void 
  */
 void ring_buffer_destroy(ring_buffer *rb){
+   if (!rb) return; // if already null, nothing to do
+
    free(rb->buffer);
-   free(rb);
+   rb->buffer = NULL; // safety
+   free(rb); 
+   // can't set rb = NULL here bc NULL is passed in
+   // setting rb = NULL is defined in a macro wherever
+   // ring_buffer_destroy is called. 
 }
 
 
