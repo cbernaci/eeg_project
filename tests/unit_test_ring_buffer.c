@@ -25,6 +25,11 @@
 #include <assert.h>
 #include <math.h>
 #include "ring_buffer.h"
+#include "test_helpers.h"
+
+#ifndef TEST_HELPERS_INCLUDED
+#error "test_helpers.h was not included!!!"
+#endif
 
 #define EPSILON 0.00001f
 #define ASSERT_FLOAT_EQ(a,b) assert(fabs((a)-(b)) < EPSILON)
@@ -165,7 +170,8 @@ void test_wraparound(ring_buffer *rb){
 
 void test_destroy(ring_buffer *rb){
    printf("[TEST] memory leak indirectly ... \n");
-   ring_buffer_destroy(rb);
+   SAFE_DESTROY(rb);          // buffer is gone from heap 
+   SAFE_DESTROY(rb);          // safe, won't call destroy again
    printf("OK\n");
    printf("... Note!! to properly test for memory leaks, now run:\n");
    printf("make memcheck\n");
@@ -177,13 +183,13 @@ int main() {
    assert(ring_buffer_init(rb, 4) == true);
 
    // these tests must be run in order, they are dependent
-   test_initialization(rb);
-   test_empty_not_full(rb);
-   test_write_until_full(rb); 
-   test_read_until_empty(rb); 
-   test_wraparound(rb);
-   test_destroy(rb);
-  
-
-
+   // commments indicate state of buffer after function call
+   test_initialization(rb);   // empty buffer with capacity 4
+   test_empty_not_full(rb);   // buffer unchanged 
+   test_write_until_full(rb); // buffer full
+   test_read_until_empty(rb); // buffer empty
+   test_wraparound(rb);       // buffer full
+   test_destroy(rb);          // buffer is gone from heap and
+                              // calling ring_buffer_destory more
+                              // than once won't cause problem
 }
