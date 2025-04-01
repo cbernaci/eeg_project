@@ -26,7 +26,7 @@ TEST_BINS = \
 all: test-all memcheck eeg
 
 test-all: $(TEST_BINS)
-	@echo "Running all tests...."
+	@echo "========== Running all tests ==========="
 	@for bin in $(TEST_BINS); do \
 	  echo "🧪 Running $$bin..."; \
 	  ./$$bin || exit 1; \
