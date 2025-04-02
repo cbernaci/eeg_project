@@ -13,6 +13,9 @@
 #ifndef TEST_HELPERS_H
 #define TEST_HELPERS_H
 
+#define EPSILON 0.00001f
+#define ASSERT_FLOAT_EQ(a,b) assert(fabs((a)-(b)) < EPSILON)
+
 #define SAFE_DESTROY(rb_ptr)    \
    do {                         \
        if ((rb_ptr) != NULL){   \
@@ -21,5 +24,4 @@
        } \
    } while (0)
 
-#define TEST_HELPERS_INCLUDED 1
 #endif
