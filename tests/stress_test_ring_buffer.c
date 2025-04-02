@@ -28,19 +28,51 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 #include "ring_buffer.h"
 #include "test_helpers.h"
 
+#define BUFFER_CAPACITY 10000
+#define NUM_WRITES 1000000
+
+/**
+ * Tests that ring buffer can handle alternating writes and reads  
+ * a very high number of times at a steady rate. Ring buffer is 
+ * allocated and destroyed within this function.
+ *
+ * input void
+ * returns void
+*/
+void stress_balanced_rw(void){
+   printf("[TEST] Balanced Read/Write ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+
+   float value;
+   for (int i = 0; i < NUM_WRITES; i++){
+      // write value to buffer
+      assert(ring_buffer_write(rb, (float)i));
+      // immediately read value back
+      assert(ring_buffer_read(rb, &value));
+      // check it's same value written and read
+      ASSERT_FLOAT_EQ(value, (float)i);
+   }
+  
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
 
 int main(){
 
-   stress_constant_throughput();
-   stress_burst_writes();
-   stress_jittery_input();
-   stress_full_buffer_pressure();
-   stress_long_wraparound();
-   stress_backpressure();
-   stress_oscillating_rates();
-   stress_data_integrity();
+   stress_balanced_rw();
+   //stress_burst_writes();
+   //stress_jittery_input();
+   //stress_long_wraparound();
+   //stress_full_pressure();
+   //stress_backpressure();
+   //stress_negative_backpressure();
+   //stress_oscillating_rates();
+   //stress_data_integrity();
    return 0;
 }
