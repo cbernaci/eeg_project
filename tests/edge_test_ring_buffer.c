@@ -21,9 +21,8 @@
 #include <assert.h>
 #include <math.h>
 #include "ring_buffer.h"
+#include "test_helpers.h"
 
-#define EPSILON 0.00001f
-#define ASSERT_FLOAT_EQ(a,b) assert(fabs((a)-(b)) < EPSILON)
 
 /**
  * Tests that false is returned (not an error) if a ring buffer is 
