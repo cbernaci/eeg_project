@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-#include <time.h>
+#include <unistd.h>
 #include "ring_buffer.h"
 #include "test_helpers.h"
 
@@ -36,6 +36,7 @@
 #define NUM_WRITES 1000000
 
 /**
+ * void stress_balanced_rw()
  * Tests that ring buffer can handle alternating writes and reads  
  * a very high number of times at a steady rate. Ring buffer is 
  * allocated and destroyed within this function.
@@ -63,10 +64,78 @@ void stress_balanced_rw(void){
    printf("OK\n");
 }
 
+/**
+ * void stress_burst_writes()
+ * This mimics what might happen if data source buffers and dumps.
+ * Tests that ring buffer can handle bursts of O(1000) writes with 
+ * O(100) reads whenever buffer fills. There is a sleep period between
+ * the bursts. For an attempted O(10^6) writes there should be O(10^4) 
+ * write failures. 
+ * Ring buffer is allocated and destroyed within this function.
+ *
+ * input void
+ * returns void
+*/
+void stress_burst_writes(void){
+   printf("[TEST] Burst writes ... \n");
+
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+
+   const int BURST_SIZE = 1000;
+   const int NUM_BURSTS = NUM_WRITES / BURST_SIZE;
+
+   int write_attempts = 0;
+   int write_successes = 0;
+   int write_failures = 0;
+   float dummy_read;
+
+   for (int b = 0; b < NUM_BURSTS; b++){
+      for (int i = 0; i < BURST_SIZE; i++){
+         float val = (float)(b*BURST_SIZE + i);
+         write_attempts++;
+
+         // attempt write
+         bool success = ring_buffer_write(rb, val);
+
+         if (!success){
+            write_failures++;
+
+            // simulate some reads occuring
+            for (int r = 0; r < BURST_SIZE/10; r++){
+               ring_buffer_read(rb, &dummy_read);
+            }
+
+            // retry
+            success = ring_buffer_write(rb, val);
+            if (!success) { // this never happens actually
+               write_failures++;
+               printf(" double fail\n");
+            }  
+         } else {
+            write_successes++;
+         }
+
+      usleep(1); // 0.001 ms delay
+      }
+   }
+
+   printf("    Write attempts : %d\n", write_attempts);
+   printf("    Write successes: %d\n", write_successes);
+   printf("    Write failures : %d\n", write_failures);
+   printf("    ✅ Passed (if no assertion failed)\n\n");
+
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+
+}
+
+
 int main(){
 
    stress_balanced_rw();
-   //stress_burst_writes();
+   stress_burst_writes();
    //stress_jittery_input();
    //stress_long_wraparound();
    //stress_full_pressure();
