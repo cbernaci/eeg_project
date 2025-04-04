@@ -34,6 +34,7 @@
 
 #define BUFFER_CAPACITY 10000
 #define NUM_WRITES 1000000
+#define BURST_SIZE 1000
 
 /**
  * void stress_balanced_rw()
@@ -83,7 +84,6 @@ void stress_burst_writes(void){
    assert(rb);
    assert(ring_buffer_init(rb, BUFFER_CAPACITY));
 
-   const int BURST_SIZE = 1000;
    const int NUM_BURSTS = NUM_WRITES / BURST_SIZE;
 
    int write_attempts = 0;
@@ -131,12 +131,88 @@ void stress_burst_writes(void){
 
 }
 
+/**
+ * void stress_jittery_input()
+ * Alternates between fast and slow writes to model inconsistent serial
+ * data. Ensures the buffer doesn't lose data or behave weirdly with 
+ * irregular timing. One value is read if a write fails.
+ * Size of buffer is 10K and the number of writes is 1M
+ * so there will be wraparound. Sleep time is random to test true jitter. 
+ * Ring buffer is allocated and destroyed within this function.
+ *
+ * input void
+ * returns void
+*/
+void stress_jittery_input(void){
+   printf("[TEST] Jittery input ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+
+   float value;
+   bool fast = 1;
+   float dummy_read;
+   int data_lost = 0;
+   int attempted_writes = 0;
+   int num_reads = 0;
+   int num_writes = 0;
+
+   // loop for writing
+   for (int i = 0; i < NUM_WRITES; i++){
+      value = sinf(i * 0.01f);  
+      attempted_writes++;
+
+      // fast writes
+      if (fast){
+         if(!ring_buffer_write(rb, value)){ // if full
+            ring_buffer_read(rb, &dummy_read); // read a value
+            num_reads++;
+            assert(ring_buffer_write(rb, value)); // try again
+            num_writes++;
+         } else {
+            num_writes++;
+         }
+      }
+      // slow writes
+      else { 
+         if(!ring_buffer_write(rb, value)){ // if full
+            ring_buffer_read(rb, &dummy_read); // read a value
+            num_reads++;
+            assert(ring_buffer_write(rb, value)); // try again
+            num_writes++;
+         } else {
+            num_writes++;
+            // random wait time between 0-99 µs
+            usleep(rand() % 100);  
+         }
+      }
+      // check if data lost
+      int expected_buffer_size = num_writes - num_reads;
+      if(rb->curr_num_values != expected_buffer_size){
+         data_lost++;
+      }
+      // every 100 writes, switch write speed
+      if((i + 1) % 100 == 0){
+         fast ^= 1;
+      }
+   }
+   printf("    Num attempted writes: %d\n", attempted_writes);
+   printf("    Num actual writes: %d\n", num_writes);
+   printf("    Num values written: %d\n", rb->curr_num_values);
+   printf("    Num values read: %d\n", num_reads);
+   printf("    Num values lost : %d\n", data_lost);
+   printf("    ✅ Passed (if no assertion failed)\n\n");
+
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
+
 
 int main(){
 
    stress_balanced_rw();
    stress_burst_writes();
-   //stress_jittery_input();
+   stress_jittery_input();
    //stress_long_wraparound();
    //stress_full_pressure();
    //stress_backpressure();
