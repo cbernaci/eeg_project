@@ -207,13 +207,57 @@ void stress_jittery_input(void){
    printf("OK\n");
 }
 
+/**
+ * void stress_long_wraparound()
+ * Performs 100 wraparounds on a buffer of size 10K. Everytime buffer fills
+ * all values are read and verified. Simulates long-running behavior. The
+ * ring buffer is allocated and destroyed within this function.
+ *
+ * input void
+ * returns void
+*/
+void stress_long_wraparound(){
+   printf("[TEST] Long wraparound ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
 
+   float write_value;
+   float all_values[NUM_WRITES];
+   float read_value;
+
+   for (int i = 0; i < NUM_WRITES; i++){
+
+      if (!ring_buffer_full(rb)){
+         // get random value to write and store in array 
+         // for later validation 
+         write_value = rand();
+         all_values[i] = write_value;
+         // write value since buffer is not full yet
+         assert(ring_buffer_write(rb, write_value)); 
+      }
+      else {
+         assert(rb->head == rb->tail);
+         // buffer is full, read all values and check
+         // for correctness
+         for (int j = 0; j < BUFFER_CAPACITY; j++){
+            ring_buffer_read(rb, &read_value); 
+            int idx = i - BUFFER_CAPACITY + j;
+            ASSERT_FLOAT_EQ(read_value, all_values[idx]);
+         }
+         assert(ring_buffer_empty(rb));
+         assert(rb->head == rb->tail);
+      } 
+   } 
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
 int main(){
 
    stress_balanced_rw();
    stress_burst_writes();
    stress_jittery_input();
-   //stress_long_wraparound();
+   stress_long_wraparound();
    //stress_full_pressure();
    //stress_backpressure();
    //stress_negative_backpressure();
