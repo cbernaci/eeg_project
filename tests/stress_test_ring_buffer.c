@@ -256,8 +256,8 @@ void stress_long_wraparound(){
 /**
  * void stress_full_pressure()
  * Fills the buffer, then reads a value and writes a new one, checking
- * for correctness of the read value. There is no wraparound, the test
- * is to see if while maintaining full pressure on the buffer that there
+ * for correctness of the read value. There is wraparound. The test
+ * is to see if while maintaining full pressure on the buffer there
  * is no anomalous behavior: lost values, etc. There are 1M writes on a 
  * buffer with capacity 10K. So there are O(1M) read checks. The ring
  * buffer is allocated and destroyed within this function.
