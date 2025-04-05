@@ -252,13 +252,63 @@ void stress_long_wraparound(){
    SAFE_DESTROY(rb);
    printf("OK\n");
 }
+
+/**
+ * void stress_full_pressure()
+ * Fills the buffer, then reads a value and writes a new one, checking
+ * for correctness of the read value. There is no wraparound, the test
+ * is to see if while maintaining full pressure on the buffer that there
+ * is no anomalous behavior: lost values, etc. There are 1M writes on a 
+ * buffer with capacity 10K. So there are O(1M) read checks. The ring
+ * buffer is allocated and destroyed within this function.
+ *
+ * input void
+ * returns void
+*/
+void stress_full_pressure(){
+   printf("[TEST] Full pressure ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+
+   float write_value;
+   float all_values[NUM_WRITES];
+   float read_value;
+
+   for (int i = 0; i < NUM_WRITES; i++){
+
+      if (!ring_buffer_full(rb)){
+         // get random value to write and store in array 
+         // for later validation 
+         write_value = rand();
+         all_values[i] = write_value;
+         // write value since buffer is not full yet
+         assert(ring_buffer_write(rb, write_value)); 
+      }
+      else {
+         assert(rb->head == rb->tail);
+         // buffer is full, read first value and check
+         // for correctness
+         ring_buffer_read(rb, &read_value); 
+         int idx = i - BUFFER_CAPACITY; 
+         ASSERT_FLOAT_EQ(read_value, all_values[idx]);
+         // now write one new value
+         write_value = rand();
+         all_values[i] = write_value;
+         assert(ring_buffer_write(rb, write_value));
+      } 
+   } 
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
+
 int main(){
 
    stress_balanced_rw();
    stress_burst_writes();
    stress_jittery_input();
    stress_long_wraparound();
-   //stress_full_pressure();
+   stress_full_pressure();
    //stress_backpressure();
    //stress_negative_backpressure();
    //stress_oscillating_rates();
