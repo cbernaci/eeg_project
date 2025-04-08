@@ -302,6 +302,72 @@ void stress_full_pressure(){
    printf("OK\n");
 }
 
+/**
+ * void stress_backpressure()
+ * Simulates a faster write than read rate, to mimic fast writing and 
+ * slower DSP processing behavior. Tests that write failures do not cause
+ * a crash. Buffer capacity is 10K, number of writes is 1M, read rate is 
+ * a quarter that of the write rate. Read value is checked for correctness.
+ * There will be wraparound.
+ *
+ * input void
+ * returns void
+*/
+void stress_backpressure(){
+   printf("[TEST] Backpressure ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+   //assert(ring_buffer_init(rb, 5));
+
+   float write_value;
+   float all_values[NUM_WRITES];
+   //float all_values[10];
+   float read_value;
+   int m = 0; 
+   for (int i = 0; i < NUM_WRITES; i++){
+   //for (int i = 0; i < 10; i++){
+      //printf("i,m =========================== %d,%d\n", i,m); 
+      // if not full, write value, read at half rate
+      if(!ring_buffer_full(rb)){
+         write_value = rand();
+         all_values[m] = write_value;
+         //printf("all_values[i] = %f\n", all_values[m]);
+         assert(ring_buffer_write(rb, write_value));
+
+         if (m % 4 == 0) {
+            ring_buffer_read(rb, &read_value);
+            int idx = m/4; 
+            /*
+            printf("reading, at 1/4 rate and comparing the values ............\n");
+            printf("read_value = %f\n", read_value);
+            printf("all_values[idx] = %f\n", all_values[idx]);
+            */
+            ASSERT_FLOAT_EQ(read_value, all_values[idx]);
+         }
+         m++;
+      }
+      else { // if full, empty it completely, validating for correctness
+          for (int j = 0; j < BUFFER_CAPACITY; j++){
+          //for (int j = 0; j < 5; j++){
+             ring_buffer_read(rb, &read_value);
+             int idx = m - BUFFER_CAPACITY + j;
+             /*
+             int idx = m - 5 + j;
+             printf("emptying buffer ............\n");
+             printf("j = %d\n", j);
+             printf("idx = %d\n", idx);
+             printf("read_value = %f\n", read_value);
+             printf("all_values[idx] = %f\n", all_values[idx]);
+             */
+             ASSERT_FLOAT_EQ(read_value, all_values[idx]); 
+          }
+          m = 0;
+      }
+   }
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
 int main(){
 
    stress_balanced_rw();
@@ -309,7 +375,7 @@ int main(){
    stress_jittery_input();
    stress_long_wraparound();
    stress_full_pressure();
-   //stress_backpressure();
+   stress_backpressure();
    //stress_negative_backpressure();
    //stress_oscillating_rates();
    //stress_data_integrity();
