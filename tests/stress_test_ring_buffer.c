@@ -305,9 +305,9 @@ void stress_full_pressure(){
 /**
  * void stress_backpressure()
  * Simulates a faster write than read rate, to mimic fast writing and 
- * slower DSP processing behavior. Tests that write failures do not cause
- * a crash. Buffer capacity is 10K, number of writes is 1M, read rate is 
- * a quarter that of the write rate. Read value is checked for correctness.
+ * slower DSP processing behavior. This tests that write failures do not 
+ * cause a crash. Buffer capacity is 10K, number of writes is 1M, read rate 
+ * is a quarter of the write rate. Read value is checked for correctness.
  * There will be wraparound.
  *
  * input void
@@ -368,6 +368,64 @@ void stress_backpressure(){
    SAFE_DESTROY(rb);
    printf("OK\n");
 }
+/**
+ * void stress_negative_backpressure()
+ * Simulates a faster read than write rate, to mimic fast processing and 
+ * slower data input. This tests that read failures do not cause a crash
+ * Must start from a nearly full buffer else we will just read and write
+ * continuously.  Buffer capacity is 10K, and is initialy written with 100
+ * values. The total number of writes is 1M + 100, write rate is a quarter 
+ * of the read rate. Read values are checked for correctness.
+ * There is no wraparound.
+ *
+ * input void
+ * returns void
+*/
+void stress_negative_backpressure(){
+   printf("[TEST] Negative backpressure ... \n");
+   ring_buffer *rb = malloc(sizeof(ring_buffer));
+   assert(rb);
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+
+
+   //int INITIAL_FILL = 100;
+   int INITIAL_FILL = 5;
+   int _NUM_WRITES = 10;
+   float write_value;
+   //float all_values[NUM_WRITES + INITIAL_FILL];
+   float all_values[_NUM_WRITES + INITIAL_FILL];
+   float read_value;
+   int m = 0;
+
+   // prefill
+   for (int i = 0; i < INITIAL_FILL; i++){
+      write_value = rand();
+      all_values[i] = write_value;
+      assert(ring_buffer_write(rb, write_value)); 
+   }
+
+   // begin main read/write loop
+   //for (int j = 0; j < NUM_WRITES; j++){
+   for (int j = 0; j < _NUM_WRITES; j++){
+   
+      if(!ring_buffer_empty(rb)){ // if not empty, read
+         ring_buffer_read(rb, &read_value);
+         printf("j = %d\n", j);
+         ASSERT_FLOAT_EQ(read_value, all_values[j]);
+      }
+
+      if(j % 4 == 0){ // write at quarter rate of reading
+         write_value = rand();
+         assert(ring_buffer_write(rb, write_value));
+         int idx = m + INITIAL_FILL;
+         all_values[idx] = write_value;
+         m++;
+      } 
+   }
+
+   SAFE_DESTROY(rb);
+   printf("OK\n");
+}
 int main(){
 
    stress_balanced_rw();
@@ -376,7 +434,7 @@ int main(){
    stress_long_wraparound();
    stress_full_pressure();
    stress_backpressure();
-   //stress_negative_backpressure();
+   stress_negative_backpressure();
    //stress_oscillating_rates();
    //stress_data_integrity();
    return 0;
