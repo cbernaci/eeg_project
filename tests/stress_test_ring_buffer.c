@@ -15,7 +15,6 @@
  *    - Backpressure - write faster than reading
  *    - Negative backpressure - read faster than writing
  * - Oscilattion producer/consumer rates
- * - Data Integrity - checksummed input
  *
  * Each tests gets its own function which allocates its own ring buffer, runs
  * it's pattern, asserts metrics and frees the buffer. 
@@ -462,7 +461,6 @@ void stress_oscillating_rates(){
    printf("OK\n");
 }
 int main(){
-
    stress_balanced_rw();
    stress_burst_writes();
    stress_jittery_input();
@@ -471,6 +469,5 @@ int main(){
    stress_backpressure();
    stress_negative_backpressure();
    stress_oscillating_rates();
-   //stress_data_integrity();
    return 0;
 }
