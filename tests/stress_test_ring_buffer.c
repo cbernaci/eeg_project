@@ -386,16 +386,18 @@ void stress_negative_backpressure(){
    ring_buffer *rb = malloc(sizeof(ring_buffer));
    assert(rb);
    assert(ring_buffer_init(rb, BUFFER_CAPACITY));
+   //assert(ring_buffer_init(rb, 5));
 
 
-   //int INITIAL_FILL = 100;
-   int INITIAL_FILL = 5;
-   int _NUM_WRITES = 10;
+   int INITIAL_FILL = 100;
+   //int INITIAL_FILL = 5;
+   //int _NUM_WRITES = 10;
    float write_value;
-   //float all_values[NUM_WRITES + INITIAL_FILL];
-   float all_values[_NUM_WRITES + INITIAL_FILL];
+   float all_values[NUM_WRITES + INITIAL_FILL];
+   //float all_values[_NUM_WRITES + INITIAL_FILL];
    float read_value;
    int m = 0;
+   int r = 0;
 
    // prefill
    for (int i = 0; i < INITIAL_FILL; i++){
@@ -405,13 +407,14 @@ void stress_negative_backpressure(){
    }
 
    // begin main read/write loop
-   //for (int j = 0; j < NUM_WRITES; j++){
-   for (int j = 0; j < _NUM_WRITES; j++){
+   for (int j = 0; j < NUM_WRITES; j++){
+   //for (int j = 0; j < _NUM_WRITES; j++){
    
       if(!ring_buffer_empty(rb)){ // if not empty, read
          ring_buffer_read(rb, &read_value);
-         printf("j = %d\n", j);
-         ASSERT_FLOAT_EQ(read_value, all_values[j]);
+         //printf("r = %d\n", r);
+         ASSERT_FLOAT_EQ(read_value, all_values[r]);
+         r++;
       }
 
       if(j % 4 == 0){ // write at quarter rate of reading
