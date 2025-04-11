@@ -368,15 +368,15 @@ void stress_backpressure(){
    SAFE_DESTROY(rb);
    printf("OK\n");
 }
-/**
+/*
  * void stress_negative_backpressure()
  * Simulates a faster read than write rate, to mimic fast processing and 
  * slower data input. This tests that read failures do not cause a crash
- * Must start from a nearly full buffer else we will just read and write
- * continuously.  Buffer capacity is 10K, and is initialy written with 100
- * values. The total number of writes is 1M + 100, write rate is a quarter 
- * of the read rate. Read values are checked for correctness.
- * There is no wraparound.
+ * Start's from a partially filled buffer else it will just read and write
+ * continuously (that behavior was tested above in 'stress_balanced_rw').
+ * Buffer capacity is 10K, and is initialy written with 100 values. The 
+ * total number of writes is 1M + 100, write rate is a quarter of the read
+ * rate. Read values are checked for correctness. There is no wraparound.
  *
  * input void
  * returns void
@@ -429,6 +429,38 @@ void stress_negative_backpressure(){
    SAFE_DESTROY(rb);
    printf("OK\n");
 }
+/*
+ * void stress_oscillating_rates()
+ * Simulates oscillating read and write rates. I.e. simulate the writer
+ * being faster at first, then the reader catching up, then falling behind
+ * again. Test begins with a faster write rate, then switches to faster read
+ * then does this switch one more time. Each time the buffer is written
+ * to 1M times. Buffer capacity is 10K. This test calls other tests.
+ * Read values are checked for correctness. There is wraparound.
+ *
+ * input void
+ * returns void
+*/
+void stress_oscillating_rates(){
+   printf("[TEST] Oscillating rates ............ \n");
+
+   // 1. write 4 times as fast for the total num_writes
+   stress_backpressure();
+   // ...
+
+   // 2. read 4 times as fast for the total num_writes
+   stress_negative_backpressure();
+   // ...
+
+   // 3. write 4 times as fast for the total num_writes
+   stress_backpressure();
+   // ...
+
+   // 4. read 4 times as fast for the total num_writes
+   stress_negative_backpressure();
+
+   printf("OK\n");
+}
 int main(){
 
    stress_balanced_rw();
@@ -438,7 +470,7 @@ int main(){
    stress_full_pressure();
    stress_backpressure();
    stress_negative_backpressure();
-   //stress_oscillating_rates();
+   stress_oscillating_rates();
    //stress_data_integrity();
    return 0;
 }
