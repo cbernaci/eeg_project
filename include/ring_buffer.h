@@ -1,10 +1,17 @@
  /*
  * @file ring_buffer.h
- * @brief Simple ring (circular) buffer implementation for real-time data streams.
+ * @brief Thread-safe ring (circular) buffer implementation for real-time data streams.
  *
  * This header provides the API for a fixed-size, FIFO ring buffer.
  * It supports enqueueing (write) and dequeueing (read) of floating-point values
  * in constant time. The buffer automatically wraps around when it reaches the end.
+
+ * The ring buffer supports concurrent access by a single producer thread and a single
+ * consumer thread. Internally, it uses a `pthread_mutex_t` to ensure safe access to shared
+ * state (head/tail pointers and data array). 
+ *
+ * Note: The ring buffer itself does not create or manage threads - it is the responsibility
+ * of the caller to coordinate producer and consumer threads that operate on the buffer. 
  *
  * Usage:
  * - Initialize using `ring_buffer_init()`
@@ -20,7 +27,7 @@
  * - Real-time EEG data buffering
  *
  * Author: Catherine Bernaciak PhD 
- * Date: March 2025 
+ * Date: March 2025 (original) April 2025 (multithreading) 
  */
  
 // include guard
@@ -28,16 +35,25 @@
 #define RING_BUFFER_H
 
 #include <stdbool.h>
+#include <pthread.h>
 
 // Custom typedef to make float size explicit
 typedef float float32_t;
 
+/** 
+* @struct ring_buffer
+* @brief A thread-safe circular buffer of floats
+*
+* This struct contains internal state for managing a fixed-size circular buffer,
+* including buffer pointer, head/tail indices, size counters, and a POSIX mutex.
+*/
 typedef struct {
-   float32_t *buffer;
-   int head;
-   int tail; 
-   int curr_num_values; 
-   int max_num_values;
+   float32_t *buffer;     // pointer to the float array holding data
+   int head;              // read index - updated by consumer
+   int tail;              // write index - updated by producer
+   int curr_num_values;   // number of values currently in the buffer
+   int max_num_values;    // max capacity of the buffer
+   pthread_mutex_t lock;  // mutex to guard access to the buffer state
 } ring_buffer;
 
 /**
@@ -71,6 +87,8 @@ bool ring_buffer_read(ring_buffer *rb, float *result);
 
 /**
  * @brief Check if the ring buffer is empty.
+ * Note: This function is not to be used outside of
+ * ring_buffer_read, otherwise race conditions can occur.
  *
  * @param rb Pointer to the ring buffer instance.
  * @return true if the buffer is empty, false otherwise.
@@ -79,6 +97,8 @@ bool ring_buffer_empty(ring_buffer *rb);
 
 /**
  * @brief Check if the ring buffer is full.
+ * Note: This function is not to be used outside of
+ * ring_buffer_write, otherwise race conditions can occur.
  *
  * @param rb Pointer to the ringBuffer instance.
  * @return true if the buffer is full, false otherwise.

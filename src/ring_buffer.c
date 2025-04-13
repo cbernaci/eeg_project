@@ -20,6 +20,7 @@
  */
 
 #include "ring_buffer.h"
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -31,6 +32,9 @@
  * returns void
 */
 bool ring_buffer_init(ring_buffer *rb, int capacity){
+   // setup the lock
+   pthread_mutex_init(&rb->lock, NULL);
+
    if(capacity <= 0){
       return false; 
    }
@@ -46,6 +50,9 @@ bool ring_buffer_init(ring_buffer *rb, int capacity){
 
 /**
  * Check if the ring buffer is empty.
+ * Note: this is an internal function not to be used
+ * outside of ring_buffer_read so as not to incur a 
+ * race condition
  *
  * rb is pointer to the ring buffer instance.
  * return true if the buffer is empty, false otherwise.
@@ -56,6 +63,9 @@ bool ring_buffer_empty(ring_buffer *rb){
 
 /**
  * Check if the ring buffer is full.
+ * Note: this is an internal function not to be used
+ * outside of ring_buffer_write so as not to incur a 
+ * race condition
  *
  * rb is pointer to the ring buffer instance.
  * return true if the buffer is full, false otherwise.
@@ -75,13 +85,23 @@ bool ring_buffer_full(ring_buffer *rb){
 
 bool ring_buffer_write(ring_buffer *rb, float32_t value){
 
+   // lock the buffer
+   pthread_mutex_lock(&rb->lock);
+
    // test if buffer is full
-   if(ring_buffer_full(rb)){return false;}
+   if(ring_buffer_full(rb)){
+      // unlock rb so it can be read from elsewhere
+      pthread_mutex_unlock(&rb->lock);
+      return false;
+   }
    // if not, add value to tail 
    rb->buffer[rb->tail] = value;
    rb->curr_num_values++;
    // tail increments or wraps around
    rb->tail = (rb->tail + 1) % rb->max_num_values; 
+
+   // unlock rb so it can be written to elsewhere
+   pthread_mutex_unlock(&rb->lock);  
    return true;
 }
 
@@ -96,8 +116,13 @@ bool ring_buffer_write(ring_buffer *rb, float32_t value){
  */
 bool ring_buffer_read(ring_buffer *rb, float *result){
 
-   // test if buffer is empty
-   if(ring_buffer_empty(rb)){
+   // lock the buffer
+   pthread_mutex_lock(&rb->lock);
+
+   // test if (locked) buffer is empty, 
+   if(ring_buffer_empty(rb)){ 
+      // unlock rb so it can be written to elsewhere
+      pthread_mutex_unlock(&rb->lock);
       return false;
    }
 
@@ -106,6 +131,9 @@ bool ring_buffer_read(ring_buffer *rb, float *result){
    rb->curr_num_values--;
    // head increments or wraps around
    rb->head = (rb->head + 1) % rb->max_num_values;
+
+   // unlock rb so it can be written to elsewhere
+   pthread_mutex_unlock(&rb->lock);  
    return true;
 }
 
@@ -120,6 +148,7 @@ void ring_buffer_destroy(ring_buffer *rb){
 
    free(rb->buffer);
    rb->buffer = NULL; // safety
+   pthread_mutex_destroy(&rb->lock); // free lock
    free(rb); 
    // can't set rb = NULL here bc NULL is passed in
    // setting rb = NULL is defined in a macro wherever
