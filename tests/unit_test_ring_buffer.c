@@ -27,9 +27,6 @@
 #include "ring_buffer.h"
 #include "test_helpers.h"
 
-//#define EPSILON 0.00001f
-//#define ASSERT_FLOAT_EQ(a,b) assert(fabs((a)-(b)) < EPSILON)
-
 void test_initialization(ring_buffer *rb){
    printf("[TEST] Initialization ... \n");
    assert(rb->head == 0);
