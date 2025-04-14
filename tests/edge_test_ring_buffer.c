@@ -117,5 +117,6 @@ int main() {
    test_buffer_size_1(rb); // ring buffer has 1 element and size 1 after this
    test_empty_buffer_read(rb); // ring buffer is empty now
    test_alternating_rw(rb);  
-   free(rb);
+   ring_buffer_destroy(rb);
+   //free(rb);
 }
