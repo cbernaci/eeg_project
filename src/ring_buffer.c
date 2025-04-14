@@ -26,6 +26,7 @@
 
 /**
  * Allocates memory for a new ring buffer with the specified capacity.
+ * Lock for ring_buffer is initialized. 
  * 
  * rb is pointer to the ring buffer instance.
  * capacity is maximum number of values to store in the buffer.
