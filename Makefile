@@ -17,13 +17,16 @@ EEG_BIN = $(BUILD_DIR)/eeg_app
 UNIT_TEST_SRC = $(TEST_DIR)/unit_test_ring_buffer.c $(SRC_DIR)/ring_buffer.c
 EDGE_TEST_SRC = $(TEST_DIR)/edge_test_ring_buffer.c $(SRC_DIR)/ring_buffer.c
 STRESS_TEST_SRC = $(TEST_DIR)/stress_test_ring_buffer.c $(SRC_DIR)/ring_buffer.c
+THREAD_TEST_SRC = $(TEST_DIR)/thread_test_ring_buffer.c $(SRC_DIR)/ring_buffer.c
 UNIT_TEST_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(UNIT_TEST_SRC)))
 EDGE_TEST_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(EDGE_TEST_SRC)))
 STRESS_TEST_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(STRESS_TEST_SRC)))
+THREAD_TEST_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(THREAD_TEST_SRC)))
 TEST_BINS = \
  $(BUILD_DIR)/unit_test_ring_buffer \
  $(BUILD_DIR)/edge_test_ring_buffer \
- $(BUILD_DIR)/stress_test_ring_buffer 
+ $(BUILD_DIR)/stress_test_ring_buffer \
+ $(BUILD_DIR)/thread_test_ring_buffer 
 
 ############## BUILD RULES ###############
 all: test-all memcheck eeg
@@ -44,6 +47,9 @@ $(BUILD_DIR)/edge_test_ring_buffer: $(EDGE_TEST_OBJS)
 
 $(BUILD_DIR)/stress_test_ring_buffer: $(STRESS_TEST_OBJS)
 	$(CC) $(CFLAGS) $(STRESS_TEST_OBJS) -o $@
+
+$(BUILD_DIR)/thread_test_ring_buffer: $(THREAD_TEST_OBJS)
+	$(CC) $(CFLAGS) $(THREAD_TEST_OBJS) -o $@
 
 memcheck: $(TEST_BINS)
 	@for bin in $(TEST_BINS); do \
