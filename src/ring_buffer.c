@@ -16,7 +16,7 @@
  *   - Destroy/free memory with ring_buffer_destroy()
  *
  * Author: Catherine Bernaciak PhD
- * Date: March 2025
+ * Date: March (unthreaded), April (locks for threading) 2025
  */
 
 #include "ring_buffer.h"
