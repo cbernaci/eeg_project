@@ -12,19 +12,59 @@
  * Date: April 2025
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-
+#include <unistd.h>
 #include "ring_buffer.h"
+
+#define NUM_WRITES 10000
+#define BUFFER_CAPACITY 10000
 
 void *producer_thread(void *arg){
    printf("Producer started \n");
+  
+   // RHS = cast input void *arg to a ring_buffer * type
+   // LHS = declare new variable rb that's a pointer to a ring_buffer
+   ring_buffer *rb = (ring_buffer *)arg;
+   float *written_values[NUM_WRITES];
+
+   // write continuously on this thread
+   //for (int i = 0; i < NUM_WRITES; i++){
+   for (int i = 0; i < 10; i++){
+      float val = rand();
+      if (ring_buffer_write(rb, val)){
+         *written_values[i] = val;
+         printf("[Producer] wrote: %.2f\n", val);
+      } else {
+         printf("[Producer] Buffer full. Skipping write.\n");
+      }
+      usleep(500); // sleep 0.5 s, simulating faster production
+   }
    return NULL;
 }
 
 void *consumer_thread(void *arg){
    printf("Consumer started \n");
+
+   ring_buffer *rb = (ring_buffer *)arg;
+   float read_val;
+   float *read_values[NUM_WRITES];
+  
+
+   // perform 1000 reads on one thread
+   //for (int i = 0; i < 1000; i++){
+   for (int i = 0; i < 10; i++){
+      if (ring_buffer_read(rb, &read_val)){
+         *read_values[i] = read_val;
+         printf("[Consumer] read: %.2f\n", read_val);
+      } else {
+         printf("[Consumer] Buffer empty. Waiting.\n");
+
+      }
+      usleep(1000); // sleep 1 s, simulating slower production
+   }
+
    return NULL;
 }
 
@@ -35,7 +75,7 @@ int main(){
    pthread_t prod, cons;
 
    ring_buffer *rb = malloc(sizeof(ring_buffer));
-   assert(ring_buffer_init(rb, 1024));
+   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
 
    /* int pthread_create(
    * pthread_t *thread,              // thread ID written here
