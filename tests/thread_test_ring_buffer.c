@@ -17,80 +17,99 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "ring_buffer.h"
+#include "test_helpers.h"
 
 #define NUM_WRITES 10000
 #define BUFFER_CAPACITY 10000
 
+typedef struct {
+   ring_buffer *rb;
+   float *written_vals;
+   float *read_vals;
+} thread_args;
+
 void *producer_thread(void *arg){
-   printf("Producer started \n");
+   //printf("Producer started \n");
   
-   // RHS = cast input void *arg to a ring_buffer * type
-   // LHS = declare new variable rb that's a pointer to a ring_buffer
-   ring_buffer *rb = (ring_buffer *)arg;
-   float *written_values[NUM_WRITES];
+   // RHS = cast input void *arg to a thread_args * type
+   // LHS = declare new variable *args that's a pointer to a 
+   // thread_args struct
+   thread_args *args = (thread_args *)arg;
 
    // write continuously on this thread
-   //for (int i = 0; i < NUM_WRITES; i++){
-   for (int i = 0; i < 10; i++){
-      float val = rand();
-      if (ring_buffer_write(rb, val)){
-         *written_values[i] = val;
-         printf("[Producer] wrote: %.2f\n", val);
-      } else {
-         printf("[Producer] Buffer full. Skipping write.\n");
-      }
+   for (int i = 0; i < NUM_WRITES; i++){
+   //for (int i = 0; i < 10; i++){
+      float val = (float)(rand() % 1000);
+      if (ring_buffer_write(args->rb, val)){
+         args->written_vals[i] = val;
+         //printf("[Producer] wrote: %.2f\n", val);
+      } 
       usleep(500); // sleep 0.5 s, simulating faster production
    }
    return NULL;
 }
 
 void *consumer_thread(void *arg){
-   printf("Consumer started \n");
+   //printf("Consumer started \n");
 
-   ring_buffer *rb = (ring_buffer *)arg;
+   // RHS = cast input void *arg to a thread_args * type
+   // LHS = declare new variable *args that's a pointer to a 
+   // thread_args struct
+   thread_args *args = (thread_args *)arg;
    float read_val;
-   float *read_values[NUM_WRITES];
-  
 
-   // perform 1000 reads on one thread
-   //for (int i = 0; i < 1000; i++){
-   for (int i = 0; i < 10; i++){
-      if (ring_buffer_read(rb, &read_val)){
-         *read_values[i] = read_val;
-         printf("[Consumer] read: %.2f\n", read_val);
-      } else {
-         printf("[Consumer] Buffer empty. Waiting.\n");
-
+   // perform reads on consumer thread
+   for (int i = 0; i < NUM_WRITES; i++){
+   //for (int i = 0; i < 10; i++){
+      if (ring_buffer_read(args->rb, &read_val)){
+         args->read_vals[i] = read_val;
+         //printf("[Consumer] read: %.2f\n", read_val);
       }
       usleep(1000); // sleep 1 s, simulating slower production
    }
-
    return NULL;
 }
 
 
 int main(){
-   // pthread_t is an opaque type
-   // holds the thread ID's assigned by OS
+   printf("[TEST] Basic Concurrecy Check ... \n");
+   // setup ring buffer and read/write comparison arrays 
+   // inside of a thread_args struct
+   thread_args *thargs = malloc(sizeof(thread_args)); 
+   thargs->rb = malloc(sizeof(ring_buffer));
+   thargs->written_vals = malloc(sizeof(float) * NUM_WRITES);
+   thargs->read_vals = malloc(sizeof(float) * NUM_WRITES);
+
+   // some simple tests
+   assert(thargs != NULL);
+   assert(thargs->rb != NULL);
+   assert(thargs->written_vals != NULL);
+   assert(thargs->read_vals != NULL);
+   assert(ring_buffer_init(thargs->rb, BUFFER_CAPACITY));
+
+   // pthread_t is an opaque type, holds thread ID's assigned by OS
    pthread_t prod, cons;
 
-   ring_buffer *rb = malloc(sizeof(ring_buffer));
-   assert(ring_buffer_init(rb, BUFFER_CAPACITY));
-
-   /* int pthread_create(
-   * pthread_t *thread,              // thread ID written here
-   * const pthread_attr_t *attr,     // optional thread attributes (NULL = default)
-   * void *(*start_routine)(void *), // function that the thread runs
-   * void *arg);                     // argument passed to that function
-   */
    // start first thread
-   pthread_create(&prod, NULL, producer_thread, rb);
+   pthread_create(&prod, NULL, producer_thread, thargs);
    // return to main thread and begin executing this one
-   pthread_create(&cons, NULL, consumer_thread, rb);
+   pthread_create(&cons, NULL, consumer_thread, thargs);
 
    // tell main thread to wait until these threads finish before continuing
    pthread_join(prod, NULL);
    pthread_join(cons, NULL);
 
+   // test that all values written and read are the same - no loss
+   //for (int i = 0; i < 10; i++){
+   for (int i = 0; i < NUM_WRITES; i++){
+     assert(thargs->read_vals[i] == thargs->written_vals[i]);
+   }
+
+   // clean up the heap
+   free(thargs->written_vals);
+   free(thargs->read_vals);
+   SAFE_DESTROY(thargs->rb);
+   free(thargs);
+   printf("OK\n");
    return 0;
 }
