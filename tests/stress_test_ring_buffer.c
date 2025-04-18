@@ -127,7 +127,6 @@ void stress_burst_writes(void){
 
    SAFE_DESTROY(rb);
    printf("OK\n");
-
 }
 
 /**
