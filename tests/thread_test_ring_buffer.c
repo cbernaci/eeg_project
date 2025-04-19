@@ -38,6 +38,7 @@ typedef struct {
    float *read_vals;
    int read_rate;
    int write_rate;
+   bool jitter;
 } thread_args;
 
 /*
@@ -66,7 +67,12 @@ void *producer_thread(void *arg){
          args->written_vals[write_count] = val;
          write_count++;
       } 
-      usleep(args->write_rate); 
+      if (!args->jitter){
+         usleep(args->write_rate); 
+      } else {
+         // realistic jitter from 1 - 30 ms
+         usleep(1000 + random() % (args->write_rate - 1000 + 1)); 
+      }
    }
    return NULL;
 }
@@ -98,31 +104,44 @@ void *consumer_thread(void *arg){
          args->read_vals[read_count] = read_val;
          read_count++;
       }
-      usleep(args->read_rate); 
+      if (!args->jitter){
+         usleep(args->read_rate); 
+      } else {
+         // realistic jitter from 1 - 30 ms
+         usleep(1000 + random() % (args->read_rate - 1000 + 1)); 
+      }
    }
    return NULL;
 }
 
 /*
  * void thread_pressure()
- * This a stress test for the concurrent ring buffer. It allows
- * for constant rw (basic), faster writes than reads (backpressure), 
- * faster reads than writes (negative backpressure).  Rate is set
- * by two inputs, which represent the integer number of microseconds 
- * delay between reads or writes. Ring buffer is allocated and destroyed 
- * within this function. There is wraparound. 
+ * This performs a set of stress tests for the concurrent ring buffer.
+ * It allows for constant rw (basic), faster writes than reads
+ * (backpressure), faster reads than writes (negative backpressure).  
+ * Rate is set by two inputs, which represent the integer number of
+ * microseconds delay between writes and reads. Ring buffer is allocated
+ * and destroyed within this function. There is a variable amount of
+ * wraparound to allow for long-running wraparound (small capacity, 
+ * many writes). 
  *
- * inputs int write_rate, int read_rate
+ * inputs int write_rate, int read_rate, int capacity
  * returns void
 */
-void thread_pressure(int write_rate, int read_rate){
-
-   if (write_rate == read_rate){
-      printf("[TEST] Basic Concurrency Check ... \n");
-   } else if (write_rate > read_rate){
-      printf("[TEST] Concurrent Negative Backpressure Check ... \n");
-   } else {
-      printf("[TEST] Concurrent Backpressure Check ... \n");
+void thread_pressure(int write_rate, int read_rate, int capacity, bool jitter){
+   
+   if(jitter) {
+      printf("[TEST] Random Jitter ... \n");
+   } else if (capacity == BUFFER_CAPACITY){
+      if (write_rate == read_rate){
+         printf("[TEST] Basic Concurrency ... \n");
+      } else if (read_rate > write_rate){
+         printf("[TEST] Concurrent Negative Backpressure ... \n");
+      } else if (write_rate > read_rate) {
+         printf("[TEST] Concurrent Backpressure ... \n");
+      } else {
+         printf("[TEST] Long running wraparound ... \n");
+      }
    }
 
    // setup ring buffer and read/write comparison arrays 
@@ -133,13 +152,14 @@ void thread_pressure(int write_rate, int read_rate){
    thargs->read_vals = malloc(sizeof(float) * NUM_WRITES);
    thargs->write_rate = write_rate; // # us between writes
    thargs->read_rate = read_rate;   // # us between reads
+   thargs->jitter = jitter;         // jitter Y/N
 
    // some simple tests
    assert(thargs != NULL);
    assert(thargs->rb != NULL);
    assert(thargs->written_vals != NULL);
    assert(thargs->read_vals != NULL);
-   assert(ring_buffer_init(thargs->rb, BUFFER_CAPACITY));
+   assert(ring_buffer_init(thargs->rb, capacity));
 
    // pthread_t is an opaque type, holds thread ID's assigned by OS
    pthread_t prod, cons;
@@ -170,11 +190,17 @@ void thread_pressure(int write_rate, int read_rate){
 }
 
 int main(){
-   thread_pressure(100, 100);
-   thread_pressure(50, 100);
-   thread_pressure(100, 50);
-   //thread_basic_concurrency();
-   //thread_backpressure();
+   // even write & read, no jitter
+   thread_pressure(100, 100, BUFFER_CAPACITY, 0); 
+   // 2x faster write than read, no jitter
+   thread_pressure(50, 100, BUFFER_CAPACITY, 0);  
+   // 2x read than write, no jitter
+   thread_pressure(100, 50, BUFFER_CAPACITY, 0);  
+   // even write & read w long-running wraparound, no jitter
+   thread_pressure(100, 100, 50, 0);              
+   // random jitter btwn ~1-30 ms for write and read 
+   // pass in max delay rate for write & read
+   thread_pressure(3000, 3000, BUFFER_CAPACITY, 1);              
 
    return 0;
 }
