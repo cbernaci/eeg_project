@@ -19,10 +19,12 @@
  * Date: March (unthreaded), April (locks for threading) 2025
  */
 
-#include "ring_buffer.h"
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include "ring_buffer.h"
 
 /**
  * Allocates memory for a new ring buffer with the specified capacity.
@@ -85,9 +87,21 @@ bool ring_buffer_full(ring_buffer *rb){
  */
 
 bool ring_buffer_write(ring_buffer *rb, float32_t value){
-
+   int retries = 0;
+   // buffer is locked unless a deadlock arises
+   while (pthread_mutex_trylock(&rb->lock) != 0){
+      retries++;
+      if (retries >= 100000){
+         fprintf(stderr, "[WRITE] Mutex timeout! Possible deadlock.\n");
+         return false;
+      }
+      if (retries % 1000 == 0){
+         printf("[READ] .. waiting for lock after %d retries \n", retries);
+      }
+      usleep(10); // give other threads a chance
+   }
    // lock the buffer
-   pthread_mutex_lock(&rb->lock);
+   //pthread_mutex_lock(&rb->lock);
 
    // test if buffer is full
    if(ring_buffer_full(rb)){
@@ -116,9 +130,20 @@ bool ring_buffer_write(ring_buffer *rb, float32_t value){
  * If empty, returns false 
  */
 bool ring_buffer_read(ring_buffer *rb, float *result){
+   int retries = 0;
 
-   // lock the buffer
-   pthread_mutex_lock(&rb->lock);
+   // buffer is locked unless a deadlock arises
+   while (pthread_mutex_trylock(&rb->lock) != 0){
+      retries++;
+      if (retries >= 100000){
+         fprintf(stderr, "[READ] Mutex timeout! Possible deadlock.\n");
+         return false;
+      }
+      if (retries % 1000 == 0){
+         printf("[READ] .. waiting for lock after %d retries \n", retries);
+      }
+      usleep(10); // give other threads a chance
+   }
 
    // test if (locked) buffer is empty, 
    if(ring_buffer_empty(rb)){ 
