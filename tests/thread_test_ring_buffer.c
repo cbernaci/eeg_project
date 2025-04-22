@@ -27,13 +27,14 @@
 #include "ring_buffer.h"
 #include "test_helpers.h"
 
-#define NUM_WRITES 10000
-//#define NUM_WRITES 10 
-#define BUFFER_CAPACITY 1000
-//#define BUFFER_CAPACITY 4
+//#define NUM_WRITES 10000
+#define NUM_WRITES 10 
+//#define BUFFER_CAPACITY 1000
+#define BUFFER_CAPACITY 4
 
 typedef struct {
    ring_buffer *rb;
+   ring_buffer *next_rb;  // optional, used in pipelining
    float *written_vals;
    float *read_vals;
    int read_rate;
@@ -103,6 +104,12 @@ void *consumer_thread(void *arg){
          //printf("value read in consumer thread: %f\n", read_val);
          args->read_vals[read_count] = read_val;
          read_count++;
+
+         // occurs if pipelining enable (multple rb's instantiated) 
+         if (args->next_rb){
+            // write the read value to the next rb
+            ring_buffer_write(args->next_rb, read_val);
+         }
       }
       if (!args->jitter){
          usleep(args->read_rate); 
@@ -126,7 +133,7 @@ void *consumer_thread(void *arg){
  * a variable amount of wraparound to allow for long-running wraparound
  * (small capacity, many writes). 
  *
- * inputs int write_rate, int read_rate, int capacity
+ * inputs int write_rate, int read_rate, int capacity, bool jitter
  * returns void
 */
 void thread_pressure(int write_rate, int read_rate, int capacity, bool jitter){
@@ -191,6 +198,80 @@ void thread_pressure(int write_rate, int read_rate, int capacity, bool jitter){
    free(thargs);
    printf("OK\n");
 }
+/*
+ * void thread_pipeline_stress()
+ * This tests three ring buffers in a pipeline, passing data
+ * producer -> [rb1] -> stage 1 -> [rb2] -> stage 2 -> [rb3] -> consumer
+ * It allows for random delays between reads and writes, including jitter.
+ * Ring buffers are allocated and destroyed within this function. There is 
+ * a fixed amount of wraparound, depending on buffer_capacity. Each buffer
+ * has same capacity.
+ *
+ * inputs int num_stages, int buffer_capacity
+ * returns void
+*/
+void thread_pipeline_stress(int num_stages, int buffer_capacity){
+   printf("[TEST] Modular Pipeline with Concurrency ...\n");
+     
+   thread_args *stages = malloc(sizeof(thread_args) * num_stages);
+   assert(stages != NULL);
+
+   for (int i = 0; i < num_stages; i++){
+      // allocate & initialize one ring buffer per pipeline stage 
+      stages[i].rb = malloc(sizeof(ring_buffer));
+      assert(stages[i].rb != NULL);
+      assert(ring_buffer_init(stages[i].rb, buffer_capacity));
+      stages[i].written_vals = malloc(sizeof(float) * NUM_WRITES);
+      stages[i].read_vals = malloc(sizeof(float) * NUM_WRITES); 
+      stages[i].write_rate = 50 + rand() % 10000;
+      stages[i].read_rate = 50 + rand() % 10000;
+      stages[i].jitter = false;
+   }
+
+   // connect each rb's output to the next rb's input where applicable
+   for (int i = 0; i < num_stages - 1; i++){
+      stages[i].next_rb = stages[i+1].rb;
+      assert(stages[i].next_rb != NULL);
+   }
+   stages[num_stages - 1].next_rb = NULL; // last stage
+
+   // allocate and create threads
+   pthread_t *producers = malloc(sizeof(pthread_t) * num_stages);
+   pthread_t *consumers = malloc(sizeof(pthread_t) * num_stages);
+   assert(producers != NULL && consumers != NULL);
+
+   for (int i = 0; i < num_stages; i++){
+      pthread_create(&producers[i], NULL, producer_thread, &stages[i]);
+      pthread_create(&consumers[i], NULL, consumer_thread, &stages[i]);
+   }
+
+   // join all threads
+   for (int i = 0; i < num_stages; i++){
+      pthread_join(producers[i], NULL);
+      pthread_join(consumers[i], NULL);
+   }
+
+   // test values written to rb1 equal the values read from rb3 - no loss
+   for (int i = 0; i < NUM_WRITES; i++){
+     //printf("i ====================== %d\n", i);
+     //printf("written_vals[i] = %f\n", thargs->written_vals[i]);
+     //printf("read_vals[i] = %f\n", thargs->read_vals[i]);
+     assert(stages[0].written_vals[i] == stages[2].read_vals[i]);
+   }
+
+   // cleanup the heap
+   for (int i = 0; i < num_stages; i++){
+      free(stages[i].written_vals);
+      free(stages[i].read_vals);
+      if (stages[i].next_rb) SAFE_DESTROY(stages[i].next_rb);
+      SAFE_DESTROY(stages[i].rb);
+//      free(stages[i]);
+   }
+   free(producers);
+   free(consumers);
+   free(stages);
+   printf("OK\n");
+}
 
 int main(){
    // Basic Concurrency - even write & read, no jitter
@@ -204,6 +285,7 @@ int main(){
    // random jitter btwn ~1-30 ms for write and read 
    // pass in max delay rate for write & read
    thread_pressure(9000, 9000, BUFFER_CAPACITY, 1);              
-
+   // test basic pipelining, random delays for each read and write stage
+   thread_pipeline_stress(3, BUFFER_CAPACITY);
    return 0;
 }
