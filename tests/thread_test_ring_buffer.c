@@ -3,10 +3,10 @@
  * @brief Tests for the threaded ring_buffer library.
  *
  * This file contains a set of threaded integration tests to verify the 
- * correctness of concurrent functionality. We need to verify that concurrent
- * access from separate producer and consumer threads behaves properly: no
- * crashes, dropped values, or memory leaks.  These tests involve 2 or more 
- * threads accessing the same buffer concurrently. Concurrency tests are:
+ * correctness of concurrent functionality for individual ring buffers and
+ * for several connected together (pipeline). These tests serve to verify that 
+ * concurrent access from separate producer and consumer threads behave properly:
+ * no crashes, dropped values, or memory leaks. Tests are:
  * - Stress Tests:
  *    - Basic Concurrency Check - identical, constant rates of read & write
  *    - Backpressure - high-frequency producer, slow consumer
@@ -16,6 +16,8 @@
  *    - Multiple producers and consumers
  * - Edge Test:
  *    - Mutex starvation / deadlock detection
+ * - Pipeline Test 
+ *    - 3 ring buffers in a pipeline with jitter at each stage
  * Author: Catherine Bernaciak PhD
  * Date: April 2025
  */
@@ -28,7 +30,7 @@
 #include "test_helpers.h"
 
 //#define NUM_WRITES 10000
-#define NUM_WRITES 10 
+#define NUM_WRITES 6 
 //#define BUFFER_CAPACITY 1000
 #define BUFFER_CAPACITY 4
 
@@ -47,6 +49,7 @@ typedef struct {
 typedef struct{
    thread_args *input_stage;
    thread_args *output_stage;
+   int thread_id;
 } worker_args;
 
 /*
@@ -139,26 +142,27 @@ void *consumer_thread(void *arg){
  * returns void pointer
 */
 void *worker_thread(void *arg){
-
-   //printf("worker thread ==========\n"); 
    // RHS = cast input void *arg to a thread_args * type
    // LHS = declare new variable *args that's a pointer to a 
    // worker_args struct
    worker_args *args = (worker_args *)arg;
+   int tid = args->thread_id;
+   //printf("worker thread %d ==========\n", tid ); 
    thread_args *in = args->input_stage;
    thread_args *out = args->output_stage;
    float read_val;
+   int did_read = 0;
+   int did_write = 0;
    int read_count = 0;
    int write_count = 0;
    int rw_count = 0;
-
    // one loop for reading and sequential writing
    while(rw_count < NUM_WRITES){
       // perform read
       if (ring_buffer_read(in->rb, &read_val)){
-         //printf("value read in consumer thread: %f\n", read_val);
+         //printf("value read in worker thread %d: %f\n", tid, read_val);
          in->read_vals[read_count] = read_val;
-         read_count++;
+         did_read = 1;
       }
       if (!in->jitter){
          usleep(in->read_rate); 
@@ -169,9 +173,9 @@ void *worker_thread(void *arg){
 
       // perform write
       if (ring_buffer_write(out->rb, read_val)){
-         //printf("value written in producer thread: %f\n", val);
+         //printf("value written in worker thread %d: %f\n", tid, read_val);
          out->written_vals[write_count] = read_val;
-         write_count++;
+         did_write = 1;
       } 
       if (!out->jitter){
          usleep(out->write_rate); 
@@ -179,12 +183,11 @@ void *worker_thread(void *arg){
          // realistic jitter from 1 - 10 ms if write_rate = 9,000
          usleep(1000 + arc4random_uniform(out->write_rate)); 
       }
-      if(read_count == write_count){
+      if(did_read && did_write){
          rw_count++;
       }
-
    }
-   //printf("worker thread finished for this stage...\n");
+   //printf("worker thread %d finished for this stage...\n", tid);
    return NULL;
 }
 
@@ -296,7 +299,6 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
       stages[i].read_rate = 100;
       stages[i].jitter = false;
    }
-
    // connect each rb's output to the next rb's input where applicable
    for (int i = 0; i < num_stages - 1; i++){
       stages[i].next_rb = stages[i+1].rb;
@@ -308,9 +310,7 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
    // ... initial producer and final consumer
    pthread_t prod, cons; 
    pthread_create(&prod, NULL, producer_thread, &stages[0]);
-   pthread_create(&cons, NULL, consumer_thread, &stages[num_stages-1]);
-
-   
+   usleep(1000);
    // ... intermediate worker threads
    pthread_t *workers = malloc(sizeof(pthread_t) * (num_stages - 1));
    assert(workers != NULL);
@@ -319,9 +319,12 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
    for (int i = 0; i < num_stages - 1; i++){
       wargs[i].input_stage = &stages[i];
       wargs[i].output_stage = &stages[i+1];
+      wargs[i].thread_id = i;
       pthread_create(&workers[i], NULL, worker_thread, &wargs[i]);
+      usleep(1000);
    }
 
+   pthread_create(&cons, NULL, consumer_thread, &stages[num_stages-1]);
    // tell main thread to wait until these threads finish before continuing
    pthread_join(prod, NULL);
    pthread_join(cons, NULL);
@@ -331,25 +334,24 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
 
    // test values written to rb1 equal the values read from rb3 - no loss
    for (int i = 0; i < NUM_WRITES; i++){
-     //printf("i ====================== %d\n", i);
-     //printf("written_vals[i] = %f\n", thargs->written_vals[i]);
-     //printf("read_vals[i] = %f\n", thargs->read_vals[i]);
-     assert(stages[0].written_vals[i] == stages[2].read_vals[i]);
+     printf("i ====================== %d\n", i);
+     printf("written_vals[i] = %f\n", stages[0].written_vals[i]);
+     printf("read_vals[i] = %f\n", stages[num_stages-1].read_vals[i]);
+     assert(stages[0].written_vals[i] == stages[num_stages-1].read_vals[i]);
    }
 
    // cleanup the heap
    for (int i = 0; i < num_stages; i++){
       free(stages[i].written_vals);
       free(stages[i].read_vals);
-      if (stages[i].next_rb) SAFE_DESTROY(stages[i].next_rb);
       SAFE_DESTROY(stages[i].rb);
-//      free(stages[i]);
    }
-   free(prod);
-   free(cons);
    free(workers);
+   free(wargs);
    free(stages);
+
    printf("OK\n");
+
 }
 
 int main(){
@@ -365,6 +367,6 @@ int main(){
    // pass in max delay rate for write & read
 //   thread_pressure(9000, 9000, BUFFER_CAPACITY, 1);              
    // test basic pipelining, random delays for each read and write stage
-   thread_pipeline_stress(2, BUFFER_CAPACITY);
+   thread_pipeline_stress(3, BUFFER_CAPACITY);
    return 0;
 }
