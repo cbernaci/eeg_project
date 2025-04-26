@@ -29,10 +29,10 @@
 #include "ring_buffer.h"
 #include "test_helpers.h"
 
-//#define NUM_WRITES 10000
-#define NUM_WRITES 6 
-//#define BUFFER_CAPACITY 1000
-#define BUFFER_CAPACITY 4
+#define NUM_WRITES 10000
+//#define NUM_WRITES 1000 
+#define BUFFER_CAPACITY 1000
+//#define BUFFER_CAPACITY 100
 
 // arguments for prod/consumer thread functions
 typedef struct {
@@ -151,17 +151,17 @@ void *worker_thread(void *arg){
    thread_args *in = args->input_stage;
    thread_args *out = args->output_stage;
    float read_val;
-   int did_read = 0;
-   int did_write = 0;
    int read_count = 0;
    int write_count = 0;
    int rw_count = 0;
    // one loop for reading and sequential writing
    while(rw_count < NUM_WRITES){
+      int did_read = 0;
+      int did_write = 0;
       // perform read
       if (ring_buffer_read(in->rb, &read_val)){
          //printf("value read in worker thread %d: %f\n", tid, read_val);
-         in->read_vals[read_count] = read_val;
+         in->read_vals[read_count++] = read_val;
          did_read = 1;
       }
       if (!in->jitter){
@@ -172,16 +172,18 @@ void *worker_thread(void *arg){
       }
 
       // perform write
-      if (ring_buffer_write(out->rb, read_val)){
-         //printf("value written in worker thread %d: %f\n", tid, read_val);
-         out->written_vals[write_count] = read_val;
-         did_write = 1;
-      } 
-      if (!out->jitter){
-         usleep(out->write_rate); 
-      } else {
-         // realistic jitter from 1 - 10 ms if write_rate = 9,000
-         usleep(1000 + arc4random_uniform(out->write_rate)); 
+      if (did_read){
+         if (ring_buffer_write(out->rb, read_val)){
+            //printf("value written in worker thread %d: %f\n", tid, read_val);
+            out->written_vals[write_count++] = read_val;
+            did_write = 1;
+         } 
+         if (!out->jitter){
+            usleep(out->write_rate); 
+         } else {
+            // realistic jitter from 1 - 10 ms if write_rate = 9,000
+            usleep(1000 + arc4random_uniform(out->write_rate)); 
+         }
       }
       if(did_read && did_write){
          rw_count++;
@@ -297,7 +299,7 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
       stages[i].read_vals = malloc(sizeof(float) * NUM_WRITES); 
       stages[i].write_rate = 100;
       stages[i].read_rate = 100;
-      stages[i].jitter = false;
+      stages[i].jitter = true;
    }
    // connect each rb's output to the next rb's input where applicable
    for (int i = 0; i < num_stages - 1; i++){
@@ -307,11 +309,12 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
    stages[num_stages - 1].next_rb = NULL; // last stage
 
    // create threads and run functions
-   // ... initial producer and final consumer
+   // ... initialize producer - stall before initializing workers
    pthread_t prod, cons; 
    pthread_create(&prod, NULL, producer_thread, &stages[0]);
-   usleep(1000);
-   // ... intermediate worker threads
+   usleep(50);
+
+   // ... intermediate worker threads - stall before initializing consumer
    pthread_t *workers = malloc(sizeof(pthread_t) * (num_stages - 1));
    assert(workers != NULL);
    worker_args *wargs = malloc(sizeof(worker_args) * (num_stages - 1));
@@ -321,9 +324,10 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
       wargs[i].output_stage = &stages[i+1];
       wargs[i].thread_id = i;
       pthread_create(&workers[i], NULL, worker_thread, &wargs[i]);
-      usleep(1000);
+      usleep(50);
    }
 
+   // ... consumer thread 
    pthread_create(&cons, NULL, consumer_thread, &stages[num_stages-1]);
    // tell main thread to wait until these threads finish before continuing
    pthread_join(prod, NULL);
@@ -334,9 +338,17 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
 
    // test values written to rb1 equal the values read from rb3 - no loss
    for (int i = 0; i < NUM_WRITES; i++){
+   /*
      printf("i ====================== %d\n", i);
      printf("written_vals[i] = %f\n", stages[0].written_vals[i]);
+     printf("read_vals[i] = %f\n", stages[0].read_vals[i]);
+     printf("......\n");
+     printf("written_vals[i] = %f\n", stages[1].written_vals[i]);
+     printf("read_vals[i] = %f\n", stages[1].read_vals[i]);
+     printf("......\n");
+     printf("written_vals[i] = %f\n", stages[2].written_vals[i]);
      printf("read_vals[i] = %f\n", stages[num_stages-1].read_vals[i]);
+   */
      assert(stages[0].written_vals[i] == stages[num_stages-1].read_vals[i]);
    }
 
