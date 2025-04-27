@@ -1,5 +1,5 @@
 # compiler settings
-CC = gcc
+CC = clang
 CFLAGS = -Wall -Wextra -Iinclude -g
 
 # directories
@@ -9,8 +9,10 @@ TEST_DIR = tests
 BUILD_DIR = build
 
 ################ EEG APP #################
-EEG_SRC = $(SRC_DIR)/read_serial_data.c $(SRC_DIR)/ring_buffer.c $(SRC_DIR)/dsp.c 
-EEG_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(EEG_SRC)))
+EEG_SRC = $(SRC_DIR)/read_serial_data.c $(SRC_DIR)/ring_buffer.c $(SRC_DIR)/dsp.c \
+          $(SRC_DIR)/visualization.m
+EEG_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(notdir $(EEG_SRC)))) \
+           $(patsubst %.m, $(BUILD_DIR)/%.o, $(filter %.m, $(notdir $(EEG_SRC)))) 
 EEG_BIN = $(BUILD_DIR)/eeg_app
 
 ################ TESTING #################
@@ -61,7 +63,7 @@ memcheck: $(TEST_BINS)
 eeg: $(EEG_BIN)
 
 $(EEG_BIN): $(EEG_OBJS)
-	$(CC) $(CFLAGS) $(EEG_OBJS) -o $@
+	$(CC) $(CFLAGS) $(EEG_OBJS) -framework Metal -framework Foundation -o $@
 
 # compile each .c file to a corresponding .o file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -69,9 +71,19 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # compile each .c file to a corresponding .o file
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.m
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# compile each .c file to a corresponding .o file
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.c
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# run eeg-app
+run-eeg: eeg
+	@echo "🚀 Running EEG app..."
+	./$(EEG_BIN) 
 
 # clean build artifacts
 clean:
