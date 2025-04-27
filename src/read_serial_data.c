@@ -102,7 +102,7 @@ void setup_serial(int fd){
 
 }
 
-int main(){
+int main_42(){
 
    // O_RDWR = open serial port for read and write
    // O_NOCTTY = don't let serial port be a controlling terminal 
