@@ -42,13 +42,17 @@ eeg_project/
 ```
 
 # 🤔 Running Tests 
-The tests that are currently implemented are unit, edge, and stress tests for the single-thread ring buffer data structure. 
+The tests that are currently implemented are unit, edge, and stress tests for the single-thread ring buffer data structure, and stress tests for a pipeline of ring buffer data structures. This latter test gets close to how a 3-stage processing system will work for the eeg app. 
 To run existing tests:
 
 `make clean ; make test-all ; make memcheck`
 
+Then visually inspect for memory leaks.
+
 # 🚀 Running Application
-Application is not ready - I am still in the testing and construction phase.
+So far am building out the visualization pipeline. To run what exists:
+
+`make run-eeg`
 
 # ✨ Follow-up Work: Neurofeedback
 The EEG project will be the first part of a neurofeedback system that will augment visual
