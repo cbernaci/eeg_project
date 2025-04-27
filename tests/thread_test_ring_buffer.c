@@ -368,16 +368,16 @@ void thread_pipeline_stress(int num_stages, int buffer_capacity){
 
 int main(){
    // Basic Concurrency - even write & read, no jitter
-//   thread_pressure(100, 100, BUFFER_CAPACITY, 0); 
+   thread_pressure(100, 100, BUFFER_CAPACITY, 0); 
    // Backpressure - faster write than read, no jitter
-//   thread_pressure(50, 100, BUFFER_CAPACITY, 0);  
+   thread_pressure(50, 100, BUFFER_CAPACITY, 0);  
    // Negative Backpressure - faster read than write, no jitter
-//   thread_pressure(100, 50, BUFFER_CAPACITY, 0);  
+   thread_pressure(100, 50, BUFFER_CAPACITY, 0);  
    // Long running wrapaaround - even write, no jitter
-//   thread_pressure(100, 100, 50, 0);              
+   thread_pressure(100, 100, 50, 0);              
    // random jitter btwn ~1-30 ms for write and read 
    // pass in max delay rate for write & read
-//   thread_pressure(9000, 9000, BUFFER_CAPACITY, 1);              
+   thread_pressure(9000, 9000, BUFFER_CAPACITY, 1);              
    // test basic pipelining, random delays for each read and write stage
    thread_pipeline_stress(3, BUFFER_CAPACITY);
    return 0;
