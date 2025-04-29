@@ -15,12 +15,23 @@
  * Date: April - May 2025
 */
 
-#include <Metal/Metal.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "../include/ring_buffer.h"
+#import <QuartzCore/CAMetalLayer.h>
+#import <Metal/Metal.h>
+#import <Foundation/Foundation.h>
+#import <simd/simd.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import  <objc/runtime.h>
+#import <pthread.h>
+#import <stdio.h>
+#import <stdlib.h>
+#import "ring_buffer.h"
 
+void sine_wave_test(){
+
+
+
+}
 
 int main() {
    // get the default metal device
