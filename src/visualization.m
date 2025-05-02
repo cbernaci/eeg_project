@@ -87,11 +87,32 @@ void initMetal(){
    // size of WIDTHxHEIGHT points. 
    metalLayer.frame = CGRectMake(0, 0, WIDTH, HEIGHT);
 
-
+   // take the Metal shader code in the string above, compile it at runtime
+   // and make a MTLLibrary object containing the compiled functions
+   id<MTLLibrary> library = [device newLibraryWithSource:shaderSource options:nil error:nil];
+   id<MTLFunction> vertexFunc = [device newFunctionWithName:@"vertex_main"];
+   id<MTLFunction> fragmentFunc = [device newFunctionWithName:@"fragment_main"];
+   // creates an empty render pipeline descriptor
+   MTLRenderPipelineDescriptor *pipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
+   // these shaders run once per pixel
+   pipelineDesc.vertexFunction = vertexFunc;
+   pipelineDesc.fragmentFunction = fragmentFunc;
+   // this tells the GPUs render pipeline to output it's color data in this format
+   pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+   pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDesc error:nil];
 }
 
 // fill the vertices array with a sine wave
-void updateVertices(){}
+void updateVertices(){
+   for (int i = 0; i < NUM_POINTS; i++){
+      float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
+      float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
+      vertices[i].position = vector_float(2){ x, y};
+   }
+   phase += 0.02f; // move sine wave
+}
+
+
 void drawFrame(){}
 
 int main() {
