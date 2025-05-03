@@ -15,6 +15,7 @@
  * Date: April - May 2025
 */
 
+#import <AppKit/AppKit.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
@@ -30,6 +31,7 @@
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
+#define NS_APPLICATION_MAIN
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -55,14 +57,14 @@ struct VertexIn{                         \n\
 };                                       \n\
                                          \n\
 vertex float4 vertex_main(VertexIn in [[stage_in]]) { \n\
-   return float4(in.position, 0.0,1.0);  \n\
-};                                       \n\
+   return float4(in.position, 0.0, 1.0);  \n\
+}                                       \n\
                                          \n\
 fragment float4 fragment_main(){         \n\
-   return float4(0.0,1.0); // green line \n\
+   return float4(0.0, 1.0, 0.0, 1.0); // green line \n\
 }                                        \n\
 ";
-
+// global def of phase of sine wave, used in updateVertices()
 float phase = 0.0f; // phase of sine wave
 
 void initMetal(){
@@ -87,11 +89,21 @@ void initMetal(){
    // size of WIDTHxHEIGHT points. 
    metalLayer.frame = CGRectMake(0, 0, WIDTH, HEIGHT);
 
+   // compile shader code into GPU-usable functions
+   NSError *error = nil;
    // take the Metal shader code in the string above, compile it at runtime
    // and make a MTLLibrary object containing the compiled functions
-   id<MTLLibrary> library = [device newLibraryWithSource:shaderSource options:nil error:nil];
-   id<MTLFunction> vertexFunc = [device newFunctionWithName:@"vertex_main"];
-   id<MTLFunction> fragmentFunc = [device newFunctionWithName:@"fragment_main"];
+   id<MTLLibrary> library = [device newLibraryWithSource:shaderSource options:nil error:&error];
+   if (!library){
+      NSLog(@"❌  Shader compile error: %@", error.localizedDescription);
+      exit(1);
+   }
+   id<MTLFunction> vertexFunc = [library newFunctionWithName:@"vertex_main"];
+   id<MTLFunction> fragmentFunc = [library newFunctionWithName:@"fragment_main"];
+   if (!vertexFunc || !fragmentFunc){
+      NSLog(@"❌ Shader functions missing.");
+      exit(1); 
+   }
    // creates an empty render pipeline descriptor
    MTLRenderPipelineDescriptor *pipelineDesc = [[MTLRenderPipelineDescriptor alloc] init];
    // these shaders run once per pixel
@@ -99,27 +111,92 @@ void initMetal(){
    pipelineDesc.fragmentFunction = fragmentFunc;
    // this tells the GPUs render pipeline to output it's color data in this format
    pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-   pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDesc error:nil];
+
+   // setup vertex layout for shader input
+   MTLVertexDescriptor *vertexDescriptor = [[MTLVertexDescriptor alloc] init];
+   vertexDescriptor.attributes[0].format = MTLVertexFormatFloat2;
+   vertexDescriptor.attributes[0].offset = 0;
+   vertexDescriptor.attributes[0].bufferIndex = 0;
+   vertexDescriptor.layouts[0].stride = sizeof(Vertex);
+   vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+   pipelineDesc.vertexDescriptor = vertexDescriptor;
+
+   // compile the pipeline state
+   pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
+   if(!pipelineState){
+      NSLog(@"❌ Failed to create pipelineState: %@", error.localizedDescription);
+      exit(1);
+   }
 }
 
-// fill the vertices array with a sine wave
+// once per frame, fill the vertices array with a sine wave 
 void updateVertices(){
    for (int i = 0; i < NUM_POINTS; i++){
       float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
       float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
-      vertices[i].position = vector_float(2){ x, y};
+      vertices[i].position = (vector_float2){ x, y};
    }
-   phase += 0.02f; // move sine wave
+   //phase += 0.02f; // move sine wave from right to left
+   phase += -0.02f; // move sine wave from left to right
 }
 
 
-void drawFrame(){}
+void drawFrame(){
+   id<CAMetalDrawable> drawable = [metalLayer nextDrawable];
+   if(!drawable) return;
+  
+   if(!pipelineState){
+      NSLog(@"❌ pipelineState is nil - can't render.");
+      exit(1);
+   } 
+   MTLRenderPassDescriptor *passDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+   passDescriptor.colorAttachments[0].texture = drawable.texture;
+   passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear; 
+   // black background
+   passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1); 
+   passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+   id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+   id<MTLRenderCommandEncoder> encoder = [commandBuffer renderCommandEncoderWithDescriptor:passDescriptor];
+
+   [encoder setRenderPipelineState:pipelineState];
+   [encoder setVertexBytes:vertices length:sizeof(vertices) atIndex:0];
+   [encoder drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:0 vertexCount:NUM_POINTS];
+   [encoder endEncoding];
+
+   [commandBuffer presentDrawable:drawable];
+   [commandBuffer commit];
+}
 
 int main() {
    @autoreleasepool {
       initMetal();
-   }
 
+      // create window manually (no AppKit or UIKit)
+      NSApplication *app = [NSApplication sharedApplication];
+      NSWindow *window = [[NSWindow alloc] 
+                          initWithContentRect:NSMakeRect(0, 0, WIDTH, HEIGHT)
+                                   styleMask:(NSWindowStyleMaskTitled |
+                                              NSWindowStyleMaskClosable |
+                                              NSWindowStyleMaskResizable)
+                                    backing:NSBackingStoreBuffered
+                                      defer:NO];
+      [window setTitle:@"Metal Sine Wave"];
+      [window makeKeyAndOrderFront:nil];
+      [window.contentView setLayer:metalLayer];
+      [window.contentView setWantsLayer:YES];
+
+      // animation loop
+      NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
+                                                        repeats:YES
+                                                        block:^(NSTimer * _Nonnull time){
+
+         updateVertices();
+         drawFrame();
+      }];
+
+      [app run];
+   }
    return 0;
 }
 
