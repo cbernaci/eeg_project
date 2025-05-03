@@ -1,6 +1,8 @@
 # compiler settings
 CC = clang
-CFLAGS = -Wall -Wextra -Iinclude -g
+#CFLAGS = -Wall -Wextra -Iinclude -g
+CFLAGS = -Wall -Wextra -Iinclude -fsanitize=address -g
+FRAMEWORKS = -framework Metal -framework Foundation -framework QuartzCore -framework AppKit
 
 # directories
 SRC_DIR = src
@@ -63,7 +65,7 @@ memcheck: $(TEST_BINS)
 eeg: $(EEG_BIN)
 
 $(EEG_BIN): $(EEG_OBJS)
-	$(CC) $(CFLAGS) $(EEG_OBJS) -framework Metal -framework Foundation -o $@
+	$(CC) $(CFLAGS) $(EEG_OBJS) $(FRAMEWORKS) -o $@
 
 # compile each .c file to a corresponding .o file
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
