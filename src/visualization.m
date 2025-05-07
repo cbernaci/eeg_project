@@ -38,14 +38,18 @@
 #define NUM_POINTS 512
 
 // global Metal objects
-id<MTLDevice> device;             // connection to GPU driver
-id<MTLCommandQueue> commandQueue; // a queue of GPU commands
+// connection to GPU driver
+id<MTLDevice> device;             
+// a queue of GPU commands - contains multiple
+// command buffers each of which typically render a frame
+id<MTLCommandQueue> commandQueue;  
 id<MTLRenderPipelineState> pipelineState; // info for GPU to draw 
 CAMetalLayer *metalLayer;
 
 typedef struct {
    vector_float2 position;
 } Vertex;
+
 Vertex vertices[NUM_POINTS];
 
 // compile a simple shader
@@ -155,12 +159,14 @@ void drawFrame(){
    // black background
    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1); 
    passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-
+   // transient and do not support reuse
+   // in a typical app, an entire frame of rendering is encoded into a single command buffer
    id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
    id<MTLRenderCommandEncoder> encoder = [commandBuffer renderCommandEncoderWithDescriptor:passDescriptor];
 
    [encoder setRenderPipelineState:pipelineState];
    [encoder setVertexBytes:vertices length:sizeof(vertices) atIndex:0];
+   // where green sine wave gets drawn
    [encoder drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:0 vertexCount:NUM_POINTS];
    [encoder endEncoding];
 
