@@ -13,6 +13,21 @@
 #define BAUD_RATE B115200
 #define FLOAT_SIZE sizeof(float)
 
+/*
+ * The function fills a ring buffer with data of sine wave moving 
+ * in the positive x direction. It's used as a placeholder for
+ * testing the eeg app before real brainwave data is available
+*/
+void sine_data_stream(ring_buffer *rb){
+   float phase = 0.0f;
+   while(1){
+      float sample = 0.5f * sinf(6.0f * phase);
+      ring_buffer_write(rb, sample);
+      phase += 0.02f;
+      usleep(5000); //~200Hz data stream
+   }
+}
+
 void *serial_reader(void *arg){
    while (1) {
 
@@ -34,6 +49,7 @@ void *serial_reader(void *arg){
    }
    return NULL;
 }
+
 void setup_serial(int fd){
    // to find all settings: find / -name 'termios.h'
    // struct to hold serial port settings
