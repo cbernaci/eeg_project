@@ -11,8 +11,8 @@ TEST_DIR = tests
 BUILD_DIR = build
 
 ################ EEG APP #################
-EEG_SRC = $(SRC_DIR)/read_serial_data.c $(SRC_DIR)/ring_buffer.c $(SRC_DIR)/dsp.c \
-          $(SRC_DIR)/visualization.m 
+EEG_SRC = $(SRC_DIR)/eeg_app.c $(SRC_DIR)/read_serial_data.c $(SRC_DIR)/ring_buffer.c  \
+	  $(SRC_DIR)/dsp.c $(SRC_DIR)/visualization.m 
 EEG_OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(notdir $(EEG_SRC)))) \
            $(patsubst %.m, $(BUILD_DIR)/%.o, $(filter %.m, $(notdir $(EEG_SRC)))) 
 EEG_BIN = $(BUILD_DIR)/eeg_app
