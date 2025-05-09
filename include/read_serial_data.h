@@ -3,6 +3,7 @@
 #ifndef READ_SERIAL_DATA_H
 #define READ_SERIAL_DATA_H
 
+#include "ring_buffer.h"
 /*
  * @brief Fills a ring buffer with sine wave data
  *
@@ -14,3 +15,4 @@
 */
 void sine_data_stream(ring_buffer *rb);
 
+#endif
