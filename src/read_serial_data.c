@@ -1,6 +1,7 @@
 //TODO: take main function out of here and put in main.c
 
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include "ring_buffer.h"
 
 #define SERIAL_PORT "/dev/cu.usbmodem11301"
 #define BAUD_RATE B115200
@@ -24,7 +26,7 @@ void sine_data_stream(ring_buffer *rb){
       float sample = 0.5f * sinf(6.0f * phase);
       ring_buffer_write(rb, sample);
       phase += 0.02f;
-      usleep(5000); //~200Hz data stream
+      usleep(5000);    // ~200Hz data stream
    }
 }
 
