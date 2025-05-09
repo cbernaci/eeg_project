@@ -27,6 +27,7 @@
 #import <stdio.h>
 #import <stdlib.h>
 #import "ring_buffer.h"
+#import "visualization.h"
 
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
@@ -134,14 +135,16 @@ void initMetal(){
 }
 
 // once per frame, fill the vertices array with a sine wave 
-void updateVertices(){
+void updateVertices(ring_buffer *rb){
    for (int i = 0; i < NUM_POINTS; i++){
+      float y = 0.0f;
+      ring_buffer_read(rb, &y);
       float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
-      float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
+      //float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
       vertices[i].position = (vector_float2){ x, y};
    }
-   //phase += 0.02f; // move sine wave from right to left
-   phase += -0.02f; // move sine wave from left to right
+   //phase += 0.02f; // sine wave moving leftward 
+   phase += -0.02f; // sine wave moving rightward
 }
 
 
@@ -174,7 +177,7 @@ void drawFrame(){
    [commandBuffer commit];
 }
 
-int main() {
+void start_visualization(ring_buffer *rb) {
    @autoreleasepool {
       initMetal();
 
@@ -187,7 +190,7 @@ int main() {
                                               NSWindowStyleMaskResizable)
                                     backing:NSBackingStoreBuffered
                                       defer:NO];
-      [window setTitle:@"Metal Sine Wave"];
+      [window setTitle:@"EEG Visualizer"];
       [window makeKeyAndOrderFront:nil];
       [window.contentView setLayer:metalLayer];
       [window.contentView setWantsLayer:YES];
@@ -197,13 +200,12 @@ int main() {
                                                         repeats:YES
                                                         block:^(NSTimer * _Nonnull time){
 
-         updateVertices();
+         updateVertices(rb);
          drawFrame();
       }];
 
       [app run];
    }
-   return 0;
 }
 
 
