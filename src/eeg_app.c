@@ -14,6 +14,7 @@
  * Author: Catherine Bernaciak PhD
  * Date: May 2025
  */
+#include <math.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,30 +23,31 @@
 #include "read_serial_data.h" // serial-data (producer thread)
 #include "ring_buffer.h"      // thread-safe ring buffer
 #include "visualization.h"    // metal+AppKit 
+#include "test_helpers.h"
 
-// setup ring buffer (for now just one) 
 #define BUFFER_CAPACITY 1000
-ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
 
 void *producer_thread(void *arg){
-   sine_data_stream(&eeg_buffer);
+   ring_buffer *rb = (ring_buffer *)arg;
+   sine_data_stream(rb);
    return NULL;
 }
 
 int main(){
-   // 1. initialize a single ring buffer
+   // 1. setup and initialize a single ring buffer
+   ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
    ring_buffer_init(eeg_buffer, BUFFER_CAPACITY);
    
    // 2. start producer thread that writes to ring buffer
    pthread_t prod;
-   if (pthread_create(&prod, NULL, producer_thread, NULL) != 0){
+   if (pthread_create(&prod, NULL, producer_thread, eeg_buffer) != 0){
       perror("Faled to create producer thread\n");
       exit(1);
    }
 
    // 3. start Metal + Appkit visualization that reads from buffer
    // note, this is using the main thread, no need to create one
-   start_visualization(&eeg_buffer);
+   start_visualization(eeg_buffer);
    
    // 4. tell main thread to wait until producer thread finishes
    pthread_join(prod, NULL);
