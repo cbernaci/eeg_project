@@ -9,14 +9,19 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include "eeg_config.h"
 #include "ring_buffer.h"
 
 #define SERIAL_PORT "/dev/cu.usbmodem11301"
 #define BAUD_RATE B115200
 #define FLOAT_SIZE sizeof(float)
 
+extern float display_buffer[NUM_POINTS];
+
 /*
- * The function fills a ring buffer with data of sine wave moving 
+ * The function fills a ring buffer with x-axis value of a sine wave 
+ * (yes it's really just 
+ * the y-value o
  * in the positive x direction. It's used as a placeholder for
  * testing the eeg app before real brainwave data is available
 */
@@ -25,8 +30,15 @@ void sine_data_stream(ring_buffer *rb){
    while(1){
       float sample = 0.5f * sinf(6.0f * phase);
       ring_buffer_write(rb, sample);
-      phase += 0.02f;
-      usleep(5000);    // ~200Hz data stream
+
+      // fill the display buffer
+      memmove(display_buffer, display_buffer + 1, (NUM_POINTS - 1)*sizeof(float));
+      display_buffer[NUM_POINTS - 1] = sample;
+
+
+      phase += -0.008f;
+      //usleep(5000);    // ~200Hz data stream
+      usleep(1000);    // ~1000Hz data stream
    }
 }
 

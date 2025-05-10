@@ -26,6 +26,7 @@
 #import <pthread.h>
 #import <stdio.h>
 #import <stdlib.h>
+#import "eeg_config.h"
 #import "ring_buffer.h"
 #import "visualization.h"
 
@@ -36,7 +37,6 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define NUM_POINTS 512
 
 // global Metal objects
 // connection to GPU driver
@@ -69,8 +69,12 @@ fragment float4 fragment_main(){         \n\
    return float4(0.0, 1.0, 0.0, 1.0); // green line \n\
 }                                        \n\
 ";
+
 // global def of phase of sine wave, used in updateVertices()
 float phase = 0.0f; // phase of sine wave
+
+// global buffer for displayed y-values
+float display_buffer[NUM_POINTS] = {0};
 
 void initMetal(){
    // device is main interface to GPU
@@ -136,15 +140,25 @@ void initMetal(){
 
 // once per frame, fill the vertices array with a sine wave 
 void updateVertices(ring_buffer *rb){
-   for (int i = 0; i < NUM_POINTS; i++){
-      float y = 0.0f;
-      ring_buffer_read(rb, &y);
-      float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
-      //float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
-      vertices[i].position = (vector_float2){ x, y};
-   }
-   //phase += 0.02f; // sine wave moving leftward 
-   phase += -0.02f; // sine wave moving rightward
+   //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
+   int num_avail_points = rb->curr_num_values;
+//   if (num_avail_points >= NUM_POINTS){
+      for (int i = 0; i < NUM_POINTS; i++){
+         float y = 0.0f;
+         ring_buffer_read(rb, &y);
+         float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
+         //float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
+         //y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
+         // y = 0.5f * sinf(6.0f * phase); // sine wave
+         y = display_buffer[i];
+         vertices[i].position = (vector_float2){ x, y};
+      }
+      //phase += 0.02f; // sine wave moving leftward 
+      //phase += -0.02f; // sine wave moving rightward
+//   }
+//   else {
+      //keep previous frame i guess}
+//   }
 }
 
 
