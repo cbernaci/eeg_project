@@ -1,6 +1,3 @@
-//TODO: take main function out of here and put in main.c
-
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include <sys/time.h>
 #include "eeg_config.h"
 #include "ring_buffer.h"
 
@@ -18,27 +16,32 @@
 
 extern float display_buffer[NUM_POINTS];
 
+// timing for debugging
+//struct timeval tv;
+//double t_start = tv.tv_sec + tv.tv_usec / 1e6;
+//gettimeofday(&tv, NULL);
+
+
 /*
- * The function fills a ring buffer with x-axis value of a sine wave 
- * (yes it's really just 
- * the y-value o
- * in the positive x direction. It's used as a placeholder for
- * testing the eeg app before real brainwave data is available
+ * The function fills a ring buffer with y-axis value of a sine wave 
+ * It's used as a placeholder for testing the eeg app before real 
+ * brainwave data is available.
 */
 void sine_data_stream(ring_buffer *rb){
    float phase = 0.0f;
    while(1){
       float sample = 0.5f * sinf(6.0f * phase);
       ring_buffer_write(rb, sample);
-
-      // fill the display buffer
-      memmove(display_buffer, display_buffer + 1, (NUM_POINTS - 1)*sizeof(float));
-      display_buffer[NUM_POINTS - 1] = sample;
-
-
-      phase += -0.008f;
+      // fill the display buffer (uncomment if using)
+      //memmove(display_buffer, display_buffer + 1, (NUM_POINTS - 1)*sizeof(float));
+      //display_buffer[NUM_POINTS - 1] = sample;
+      phase += -0.02f;
       //usleep(5000);    // ~200Hz data stream
-      usleep(1000);    // ~1000Hz data stream
+      //usleep(1000);    // ~1kHz data stream
+      //usleep(500);     // ~2kHz data stream
+      //usleep(250);     // ~4kHz data stream
+      usleep(200);       // ~5kHz data stream
+      //usleep(100);     // ~10kHz data stream
    }
 }
 

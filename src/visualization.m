@@ -142,25 +142,20 @@ void initMetal(){
 void updateVertices(ring_buffer *rb){
    //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
    int num_avail_points = rb->curr_num_values;
-//   if (num_avail_points >= NUM_POINTS){
+   if (num_avail_points >= NUM_POINTS){
       for (int i = 0; i < NUM_POINTS; i++){
          float y = 0.0f;
          ring_buffer_read(rb, &y);
          float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
-         //float y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
          //y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
-         // y = 0.5f * sinf(6.0f * phase); // sine wave
-         y = display_buffer[i];
+         //y = display_buffer[i];
          vertices[i].position = (vector_float2){ x, y};
       }
-      //phase += 0.02f; // sine wave moving leftward 
-      //phase += -0.02f; // sine wave moving rightward
-//   }
-//   else {
-      //keep previous frame i guess}
-//   }
+   }
+   else {
+      //keep previous frame i guess
+   }
 }
-
 
 void drawFrame(){
    id<CAMetalDrawable> drawable = [metalLayer nextDrawable];

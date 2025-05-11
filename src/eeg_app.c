@@ -18,7 +18,6 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <stdbool.h>
 #include <unistd.h>
 #include "eeg_config.h"       // configure buffers
 #include "read_serial_data.h" // serial-data (producer thread)
@@ -28,6 +27,8 @@
 
 #define BUFFER_CAPACITY 10000
 
+
+// thread for writing to ring buffer
 void *producer_thread(void *arg){
    ring_buffer *rb = (ring_buffer *)arg;
    sine_data_stream(rb);
@@ -38,14 +39,17 @@ int main(){
    // 1. setup and initialize a single ring buffer
    ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
    ring_buffer_init(eeg_buffer, BUFFER_CAPACITY);
-   
+
    // 2. start producer thread that writes to ring buffer
    pthread_t prod;
    if (pthread_create(&prod, NULL, producer_thread, eeg_buffer) != 0){
       perror("Faled to create producer thread\n");
       exit(1);
    }
-   usleep(1000000); // wait 1 s for buffer to fill up
+
+     // this doesn't make a difference
+//   usleep(13000000); // wait 13 s for buffer to fill up
+
    // 3. start Metal + Appkit visualization that reads from buffer
    // note, this is using the main thread, no need to create one
    start_visualization(eeg_buffer);
