@@ -31,7 +31,8 @@
 // thread for writing to ring buffer
 void *producer_thread(void *arg){
    ring_buffer *rb = (ring_buffer *)arg;
-   sine_data_stream(rb);
+   //sine_data_stream(rb);
+   read_physionet_data(rb);
    return NULL;
 }
 

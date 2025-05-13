@@ -44,6 +44,57 @@ void sine_data_stream(ring_buffer *rb){
       //usleep(100);     // ~10kHz data stream
    }
 }
+/*
+ * A function writes to a ring buffer data from a physionet.org dataset
+ * sampled at 2048 Hz for about 1 minute. It therefore contains about 140K
+ * readings which come from two different point on the pre-frontal cortex.
+ * It doesn't say which points.  
+ *
+*/
+void read_physionet_data(ring_buffer *rb){
+
+   // 1. open csv file
+   char *filename = "data/EEG-csv/Trial1.csv"; // relative to makefile
+   FILE *file = fopen(filename, "r");
+   if (!file){
+      printf("Error opening file: %s\n", filename);
+      return;
+   }
+   // 2. read one line at a time
+   char *line = NULL; // pointer to line buffer
+   size_t len = 0;   // getline will allocate space if we don't know ahead
+   ssize_t read;     // the line we read
+   while ((read = getline(&line, &len, file)) != -1){
+      // 3. extract only 2nd column and write to ring buffer
+      char *token;
+      float value;
+      int count;
+      // split line on commas, tokens is an array of char's between commas
+      token = strtok(line, ",");
+      if (token) { // if there is a first token
+         token = strtok(NULL, ",");  // grab second token if there is one
+         if (token) { 
+            count++;
+            value = atof(token);
+            // assuming min is 8000, max is 10,000, determined from
+            // visually inspecting file but there are a few values outside
+            // of this range but this should be the vast majority. 
+            float scaled_value = (value - 8000)/1000 - 1;
+            if( (value < 8000) | (value > 10000)){
+               printf("===============\n");
+               printf("value orig = %f\n", value);
+               printf("value scaled = %f\n", scaled_value);
+               printf("iteration = %d\n", count);
+            }
+            ring_buffer_write(rb, scaled_value);
+//            if (count++ == 200) {exit(1);}
+//            printf("2nd token is %d: \n", value);
+         }
+      }
+      usleep(500);     // ~2kHz data stream
+//      exit(1);
+   }
+}
 
 void *serial_reader(void *arg){
    while (1) {
@@ -171,8 +222,6 @@ int main_42(){
    while (1) {
       sleep(1);
    }
-    
-
     
    close(fd);
    return 0;

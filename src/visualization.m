@@ -146,6 +146,7 @@ void updateVertices(ring_buffer *rb){
       for (int i = 0; i < NUM_POINTS; i++){
          float y = 0.0f;
          ring_buffer_read(rb, &y);
+         //printf("value read from ring buffer is %d\n", y);
          float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
          //y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
          //y = display_buffer[i];
