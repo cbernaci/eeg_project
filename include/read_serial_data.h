@@ -15,4 +15,17 @@
 */
 void sine_data_stream(ring_buffer *rb);
 
+/*
+ * @brief Fills a ring buffer with real EEG data
+ *
+ * The function fills a ring buffer with data from a single
+ * channel on the pre-frontal cortex. Data is from physionet.org
+ * from the dataset entitled 'Motion Artifact Contaminated fNIRS 
+ * and EEG Data', Trail1.csv
+ *
+ * @param rb Pointer to a ring buffer instance
+ * @return void
+*/
+void read_physionet_data(ring_buffer *rb);
+
 #endif
