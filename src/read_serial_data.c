@@ -1,11 +1,12 @@
+#include <fcntl.h>
 #include <math.h>
+#include <pthread.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <termios.h>
+#include <unistd.h>
 #include <sys/time.h>
 #include "eeg_config.h"
 #include "ring_buffer.h"
@@ -14,12 +15,24 @@
 #define BAUD_RATE B115200
 #define FLOAT_SIZE sizeof(float)
 
+volatile sig_atomic_t keep_running = 1;
 extern float display_buffer[NUM_POINTS];
 
 // timing for debugging
 //struct timeval tv;
 //double t_start = tv.tv_sec + tv.tv_usec / 1e6;
 //gettimeofday(&tv, NULL);
+
+
+/*
+ * This funciton handles interruptions in the 
+ * serial data stream. It responds to 
+ */
+void handle_sigint(int sig){
+   (void)sig;
+   keep_running = 0;
+   printf("SIGINT received. Stopping ...\n");
+}
 
 
 /*
@@ -44,6 +57,7 @@ void sine_data_stream(ring_buffer *rb){
       //usleep(100);     // ~10kHz data stream
    }
 }
+
 /*
  * A function writes to a ring buffer data from a physionet.org dataset
  * sampled at 2048 Hz for about 1 minute. It therefore contains about 140K
@@ -68,7 +82,7 @@ void read_physionet_data(ring_buffer *rb){
       // 3. extract only 2nd column and write to ring buffer
       char *token;
       float value;
-      int count;
+      int count = 0;
       // split line on commas, tokens is an array of char's between commas
       token = strtok(line, ",");
       if (token) { // if there is a first token
@@ -96,26 +110,30 @@ void read_physionet_data(ring_buffer *rb){
    }
 }
 
-void *serial_reader(void *arg){
+/*
+ * This function reads the serial stream and writes 
+ * to a ring_buffer
+ */
+void serial_reader(int fd_in, ring_buffer *rb_in){
    while (1) {
 
-      int fd = *(int *)arg;  // cast void* back to int* 
       char buffer[FLOAT_SIZE];
       int bytes_read;
       //int test_counter = 0;  
       //int test_max_counter = 100;  
 
-      // read 4 bytes of binary data from serial port
-      bytes_read = read(fd, buffer, FLOAT_SIZE);
-      if(bytes_read == FLOAT_SIZE){ 
-         //test_counter++;
-         float voltage;
-         memcpy(&voltage, buffer, FLOAT_SIZE);
-         printf("Voltage: %.2f\n", voltage);  // print incoming data
+      while (keep_running) {
+         bytes_read = read(fd_in, buffer, FLOAT_SIZE); // read 4 bytes of data from serial port
+         if(bytes_read == FLOAT_SIZE){ 
+            //test_counter++;
+            float voltage;
+            memcpy(&voltage, buffer, FLOAT_SIZE);
+            ring_buffer_write(rb_in, voltage);
+            printf("Voltage: %.2f\n", voltage);  // print incoming data
+         }
+         //if(test_counter==test_max_counter) break;
       }
-      //if(test_counter==test_max_counter) break;
    }
-   return NULL;
 }
 
 void setup_serial(int fd){
@@ -187,6 +205,8 @@ void setup_serial(int fd){
 
 void read_serial_data(ring_buffer *rb){
 
+   signal(SIGINT, handle_sigint); // register signal handler for keyboard interrupts
+
    // O_RDWR = open serial port for read and write
    // O_NOCTTY = don't let serial port be a controlling terminal 
    // meaning if data comes in it can't affect the program
@@ -204,24 +224,11 @@ void read_serial_data(ring_buffer *rb){
    printf("fd = %d\n", fd);
    if (fd == -1) {
       perror("Error opening serial port");
-      return 1;
    }
 
-   // the serial port is denoted by fd and is configured with this call
-   setup_serial(fd);
+   setup_serial(fd);      // configure serial port fd
+   serial_reader(fd, rb); // write serial data to ring_buffer 
 
-   // create separate thread for serial reading
-   //pthread_t thread_id; // identifer to reference the thread
-  
-   //if(pthread_create(&thread_id, NULL, serial_reader, &fd) != 0){
-   //   perror("Failed to create thread for serial reading");
-   //   return 1;
-   // }
-
-   while (1) {
-      sleep(1);
-   }
-    
    close(fd);
-   return 0;
+   printf("Serial port closed.\n");
 }
