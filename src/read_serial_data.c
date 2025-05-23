@@ -183,10 +183,9 @@ void setup_serial(int fd){
       perror("tcsetattr error: cannot set terminal attributes");
       exit(1);
    }
-
 }
 
-int main_42(){
+void read_serial_data(ring_buffer *rb){
 
    // O_RDWR = open serial port for read and write
    // O_NOCTTY = don't let serial port be a controlling terminal 
@@ -212,12 +211,12 @@ int main_42(){
    setup_serial(fd);
 
    // create separate thread for serial reading
-   pthread_t thread_id; // identifer to reference the thread
+   //pthread_t thread_id; // identifer to reference the thread
   
-   if(pthread_create(&thread_id, NULL, serial_reader, &fd) != 0){
-      perror("Failed to create thread for serial reading");
-      return 1;
-   }
+   //if(pthread_create(&thread_id, NULL, serial_reader, &fd) != 0){
+   //   perror("Failed to create thread for serial reading");
+   //   return 1;
+   // }
 
    while (1) {
       sleep(1);

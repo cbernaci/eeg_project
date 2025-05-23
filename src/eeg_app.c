@@ -32,7 +32,8 @@
 void *producer_thread(void *arg){
    ring_buffer *rb = (ring_buffer *)arg;
    //sine_data_stream(rb);
-   read_physionet_data(rb);
+   //read_physionet_data(rb);
+   read_serial_data(rb);
    return NULL;
 }
 
