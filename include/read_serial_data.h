@@ -28,4 +28,15 @@ void sine_data_stream(ring_buffer *rb);
 */
 void read_physionet_data(ring_buffer *rb);
 
+/*
+ * @brief Fills a ring buffer with serial port data
+ *
+ * The function fills a ring buffer with data from the USB 
+ * port of the Macbook. 
+ *
+ * @param rb Pointer to a ring buffer instance
+ * @return void
+*/
+void read_serial_data(ring_buffer *rb);
+
 #endif
