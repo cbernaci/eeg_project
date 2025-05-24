@@ -4,6 +4,7 @@
 #define READ_SERIAL_DATA_H
 
 #include "ring_buffer.h"
+
 /*
  * @brief Fills a ring buffer with sine wave data
  *
