@@ -27,8 +27,21 @@
 
 #define BUFFER_CAPACITY 10000
 
+volatile sig_atomic_t keep_running = 1;
 
-// thread for writing to ring buffer
+/*
+ * This function handles interruptions in the 
+ * serial data stream. It responds to 
+ */
+void handle_sigint(int sig){
+   (void)sig;
+   keep_running = 0;
+   printf("SIGINT received. Stopping ...\n");
+}
+
+/*
+ * Thread for writing to ring buffer
+ */
 void *producer_thread(void *arg){
    ring_buffer *rb = (ring_buffer *)arg;
    //sine_data_stream(rb);
@@ -38,6 +51,10 @@ void *producer_thread(void *arg){
 }
 
 int main(){
+
+   // 0. register signal handler for keyboard interrupts
+   signal(SIGINT, handle_sigint); 
+
    // 1. setup and initialize a single ring buffer
    ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
    ring_buffer_init(eeg_buffer, BUFFER_CAPACITY);
@@ -56,11 +73,11 @@ int main(){
    // note, this is using the main thread, no need to create one
    start_visualization(eeg_buffer);
    
+   printf("about to call pthread_join ... \n");  
    // 4. tell main thread to wait until producer thread finishes
    pthread_join(prod, NULL);
 
    // 5. cleanup heap
    SAFE_DESTROY(eeg_buffer);
-  
    return 0;
 }
