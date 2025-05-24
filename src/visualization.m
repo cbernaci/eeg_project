@@ -190,9 +190,23 @@ void drawFrame(){
 void start_visualization(ring_buffer *rb) {
    @autoreleasepool {
       initMetal();
-
-      // create window manually (no AppKit or UIKit)
+      // create window with menu 
       NSApplication *app = [NSApplication sharedApplication];
+      // Show dock icon + menu bar
+      [app setActivationPolicy:NSApplicationActivationPolicyRegular];  
+      // menubar with 'quit' option
+      NSMenu *menubar = [[NSMenu alloc] init];
+      NSMenuItem *appMenuItem = [[NSMenuItem alloc] init];
+      [menubar addItem:appMenuItem];
+      [app setMainMenu:menubar];
+      NSMenu *appMenu = [[NSMenu alloc] init];
+      NSMenuItem *quitMenuItem = [[NSMenuItem alloc]
+          initWithTitle:@"Quit EEG Visualizer"
+                 action:@selector(terminate:)
+          keyEquivalent:@"q"];
+      [appMenu addItem:quitMenuItem];
+      [appMenuItem setSubmenu:appMenu];
+      // main window
       NSWindow *window = [[NSWindow alloc] 
                           initWithContentRect:NSMakeRect(0, 0, WIDTH, HEIGHT)
                                    styleMask:(NSWindowStyleMaskTitled |
@@ -204,11 +218,14 @@ void start_visualization(ring_buffer *rb) {
       [window makeKeyAndOrderFront:nil];
       [window.contentView setLayer:metalLayer];
       [window.contentView setWantsLayer:YES];
-
+      [NSApp activateIgnoringOtherApps:YES]; // bring to front 
       // animation loop
       NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/60.0
                                                         repeats:YES
                                                         block:^(NSTimer * _Nonnull time){
+         if (!keep_running){
+            [NSApp terminate:nil];
+         }
 
          updateVertices(rb);
          drawFrame();
