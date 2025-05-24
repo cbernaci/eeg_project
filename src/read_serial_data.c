@@ -15,25 +15,10 @@
 #define BAUD_RATE B115200
 #define FLOAT_SIZE sizeof(float)
 
-volatile sig_atomic_t keep_running = 1;
-extern float display_buffer[NUM_POINTS];
-
 // timing for debugging
 //struct timeval tv;
 //double t_start = tv.tv_sec + tv.tv_usec / 1e6;
 //gettimeofday(&tv, NULL);
-
-
-/*
- * This funciton handles interruptions in the 
- * serial data stream. It responds to 
- */
-void handle_sigint(int sig){
-   (void)sig;
-   keep_running = 0;
-   printf("SIGINT received. Stopping ...\n");
-}
-
 
 /*
  * The function fills a ring buffer with y-axis value of a sine wave 
@@ -115,7 +100,6 @@ void read_physionet_data(ring_buffer *rb){
  * to a ring_buffer
  */
 void serial_reader(int fd_in, ring_buffer *rb_in){
-   while (1) {
 
       char buffer[FLOAT_SIZE];
       int bytes_read;
@@ -133,7 +117,6 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
          }
          //if(test_counter==test_max_counter) break;
       }
-   }
 }
 
 void setup_serial(int fd){
@@ -205,7 +188,6 @@ void setup_serial(int fd){
 
 void read_serial_data(ring_buffer *rb){
 
-   signal(SIGINT, handle_sigint); // register signal handler for keyboard interrupts
 
    // O_RDWR = open serial port for read and write
    // O_NOCTTY = don't let serial port be a controlling terminal 
@@ -227,7 +209,9 @@ void read_serial_data(ring_buffer *rb){
    }
 
    setup_serial(fd);      // configure serial port fd
-   serial_reader(fd, rb); // write serial data to ring_buffer 
+   while (keep_running) {
+      serial_reader(fd, rb); // write serial data to ring_buffer 
+   }
 
    close(fd);
    printf("Serial port closed.\n");
