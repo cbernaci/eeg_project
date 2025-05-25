@@ -32,7 +32,14 @@ But it takes 13 clock cycles for a single anaglog-to-digital-conversion, which g
 
 Time for one conversion = 13 * 8 microsecond = 104 microseconds 
 
+Which gives a sampling rate (ignoring first sample which takes 25 clock cycles to initialize registers and such) of 
 
+Pin A0 sampling rate ~ 1 / 104 microseconds = 9.6 kHz.
+
+Which should be more than fast enough to sample a 490 Hz square wave to avoid aliasing. So..I'm 
+not sure why the waveform that is recorded looks so uneven. I don't think it's due to the SW pipeline
+because when I print the voltages to the terminal, before they even get passed to the ring buffer
+or visualized, they are not evenly distributed between 0V and 5V. 
 
 Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
 to see how to generate the square wave. 
