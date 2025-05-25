@@ -21,10 +21,11 @@ connected directly to Pin A0 which sends the signal to the digitizer and then to
 Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
 to see how to generate the square wave. 
 
-Pic of Circuit:
+### Pic of Circuit:
+
 <img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
 
-Pic of Signal:
-![Visualizer_square_wave.](./square_wave.png "EEG Visualizer with Square Wave.")
+### Pic of Signal:
+<img src="./square_wave.png" title="EEG Visualizer for Square Wave." width="300"/>
 
 
