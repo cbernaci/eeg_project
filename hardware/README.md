@@ -2,7 +2,7 @@
 Here I document the circuits tested at each step while building the EEG. I wanted to test the 
 SW side of things before hooking up electrodes to my scalp, so I used the Arduino Uno to generate a
 square wave signal with a duty cycle of 50% to drive some circuits, with each circuit getting 
-progressivly closer to the signal chain needed to handle the electrode signal. 
+progressively closer to the signal chain needed to handle the electrode signal. 
 
 The order of progression for the circuits are:
 
