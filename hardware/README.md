@@ -44,8 +44,6 @@ or visualized, they are not evenly distributed between 0V and 5V.
 Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
 to see how to generate the square wave. 
 
-According to the Uno documentation, the PWM pins output a sample at 490Hz. This means it takes 
-
 ### Pic of Circuit:
 
 <img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
