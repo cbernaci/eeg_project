@@ -51,8 +51,7 @@ to see how to generate the square wave.
 ### Pic of Signal:
 <img src="./square_wave.png" title="EEG Visualizer for Square Wave." width="600"/>
 
-The square wave, when visualized, does not appear to have a 50% duty cycle. This is likely because
-the A0 pin is not sampling at the exact rate that pin 9 is outputting the signal. I tried playing 
+The square wave, when visualized, does not appear to have a 50% duty cycle.  I tried playing 
 around with prescaler settings in the ADC, delays in both the sketch and the serial reading but
 was unable to get it to sample at the right rate. Moved on in the interest of time. 
 
