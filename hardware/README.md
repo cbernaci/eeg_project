@@ -22,7 +22,7 @@ to the serial port. The ATmega328P runs at 16MHz which is the clock speed for th
 ADC clock speed can be divided by a prescaler value, which by default is 128. So, the ADC clock is 
 really:
 
-$ ADC Clock = /frac{16 MHz}{128}  = 125 kHZ$
+$ADC Clock = /frac{16 MHz}{128}  = 125 kHZ$
 Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
 to see how to generate the square wave. 
 
