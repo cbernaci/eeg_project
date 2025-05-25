@@ -20,9 +20,20 @@ The Arduino Uno is used to generate a square wave with 50% duty cycle from pin 9
 connected directly to Pin A0 which sends the signal to the ADC on the ATmega328P chip and then 
 to the serial port. The ATmega328P runs at 16MHz which is the clock speed for the ADC. However, the 
 ADC clock speed can be divided by a prescaler value, which by default is 128. So, the ADC clock is 
-really:
+really (see https://www.gammon.com.au/adc for this info):
 
-ADC Clock = $/frac{16 MHz}{128}$  = $125 kHZ$
+ADC Clock frequency = 16 MHz/128  = 125 kHZ
+
+And the inverse of this gives the amount of time for one clock cycle:
+
+ADC Clock cycle period = 1 / 125 kHz = 8 microseconds
+
+But it takes 13 clock cycles for a single anaglog-to-digital-conversion, which gives
+
+Time for one conversion = 13 * 8 microsecond = 104 microseconds 
+
+
+
 Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
 to see how to generate the square wave. 
 
