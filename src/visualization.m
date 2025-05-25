@@ -137,8 +137,10 @@ void initMetal(){
       exit(1);
    }
 }
-
-// once per frame, fill the vertices array with a sine wave 
+/*
+ * Once per frame, fill the vertices array with either a sine wave (if testing)
+ * or data from the ring_buffer which is holding the serial input
+ */ 
 void updateVertices(ring_buffer *rb){
    //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
    int num_avail_points = rb->curr_num_values;
