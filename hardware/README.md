@@ -1,3 +1,4 @@
+# Circuit Documentation
 Here I document the circuits tested at each step while building the EEG. I wanted to test the 
 SW side of things before hooking up electrodes to my scalp, so I used the Arduino Uno to generate a
 square wave signal with a duty cycle of 50% to drive some circuits, which each circuit getting 
@@ -21,7 +22,7 @@ Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_
 to see how to generate the square wave. 
 
 Pic of Circuit:
-![This is an alt text.](/square_wave.png "This is a sample image.")
+![This is an alt text.](./square_wave.png "This is a sample image.")
 
 
 Pic of Signal:
