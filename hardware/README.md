@@ -22,7 +22,7 @@ Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_
 to see how to generate the square wave. 
 
 Pic of Circuit:
-![Uno_square_wave.](./square_wave_uno.png "Uno Wiring for Square Wave.")
+<img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
 
 Pic of Signal:
 ![Visualizer_square_wave.](./square_wave.png "EEG Visualizer with Square Wave.")
