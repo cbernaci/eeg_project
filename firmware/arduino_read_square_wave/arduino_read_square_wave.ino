@@ -19,7 +19,7 @@ void setup() {
    // configure pin 9 as output
    pinMode(outputPin, OUTPUT);    
    // generate 50% duty cycle square wave from pin 9
-   //analogWrite(outputPin, dutyCycle); 
+   analogWrite(outputPin, dutyCycle); 
 }
 // every sketch must have loop() function
 // runs continuously after setup() has finished
@@ -34,7 +34,7 @@ void loop() {
    float voltage1 = sensorValue1*(5.0/1023.0);  // divide by 1023 bc arduino has 10-bit ADC (2^10 = 1024) starting at value 0
 
 
-   analogWrite(outputPin, dutyCycle);  // haven't run with this here yet! delete when you do, it should work! might give better signal
+   //analogWrite(outputPin, dutyCycle);  // haven't run with this here yet! delete when you do, it should work! might give better signal
    // send voltage reading to the serial monitor
    //Serial.println(voltage1); // sends as string terminated with \r\n
    Serial.write((byte*)&voltage1, sizeof(voltage1));
