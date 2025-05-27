@@ -59,4 +59,4 @@ was unable to get it to sample at the right rate. Moved on in the interest of ti
 In theory, it's possible to turn the square wave into a sine wave.  Here we will examine this by passing the square
 wave from above into a simple RC circuit, also called a 'low-pass filter' circuit.  This consists of a resistor 
 connected in series with a capacitor. 
-<img src="./RC_circuit_drawing.png" title="Serial RC Circuit." width="300"/>
+<img src="./RC_circuit_drawing.png" title="Serial RC Circuit." width="600"/>
