@@ -41,7 +41,7 @@ not sure why the waveform that is recorded looks so uneven. I don't think it's d
 because when I print the voltages to the terminal, before they even get passed to the ring buffer
 or visualized, they are not evenly distributed between 0V and 5V. 
 
-Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino
+Check the [arduino sketch](/eeg_project/firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
 
 ### Pic of Circuit:
@@ -59,12 +59,15 @@ was unable to get it to sample at the right rate. Moved on in the interest of ti
 In theory, it's possible to turn the square wave into a sine wave.  Here we will examine this by passing the square
 wave from above into a simple RC circuit, also called a 'low-pass filter' circuit.  This consists of a resistor 
 connected in series with a capacitor. 
+
 <img src="./RC_circuit_drawing.png" title="Serial RC Circuit." width="600"/>
+
 I've chosen R = 1 kOhm   and C = 1 microFarad which gives a time constant tau = 1ms. This should be very close to the frequency of
 the square wave which is 490 kHz coming from pin 9 of the Uno. (Note, this is not the sampling frequency as discussed above).
 Square wave frequency of 490 Hz corresponds to a period of 2.04 ms, so having a time constant of 1ms gives us the right amount of timing
 to modulate one pulse of the square wave. Working through the calculatin in [] we can see that our smoothed square wave will oscillate 
 between about 1.3 V to 3.7 V. 
+
 <img src="./square_wave_freq_drawing.png" title="Square wave before and after filter." width="900"/>
 
  
