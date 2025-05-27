@@ -41,7 +41,7 @@ not sure why the waveform that is recorded looks so uneven. I don't think it's d
 because when I print the voltages to the terminal, before they even get passed to the ring buffer
 or visualized, they are not evenly distributed between 0V and 5V. 
 
-Check the [arduino sketch](firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
+Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
 
 ### Pic of Circuit:
