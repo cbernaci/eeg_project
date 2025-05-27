@@ -102,20 +102,52 @@ void read_physionet_data(ring_buffer *rb){
 void serial_reader(int fd_in, ring_buffer *rb_in){
 
       char buffer[FLOAT_SIZE];
-      int bytes_read;
-      //int test_counter = 0;  
+      int test_counter = 0;  
+      time_t last_time = time(NULL);
       //int test_max_counter = 100;  
 
       while (keep_running) {
-         bytes_read = read(fd_in, buffer, FLOAT_SIZE); // read 4 bytes of data from serial port
-         if(bytes_read == FLOAT_SIZE){ 
-            //test_counter++;
+         size_t total_bytes_read = 0;
+
+         // accumulate 4 bytes before writing a voltage value to ring buffer
+         while (total_bytes_read < FLOAT_SIZE){
+            // read returns number of bytes read from the file descriptor fd_in
+            int n = read(fd_in, buffer + total_bytes_read, FLOAT_SIZE - total_bytes_read);
+
+            if (n > 0){ // have either read 1,2,3 bytes
+               total_bytes_read += n;
+            } else if (n == 0){
+               // EOF or no data - skip this read
+               continue;
+            } else {
+               // should have read something
+               perror("Serial read error");
+               break;
+            }
+         }
+
+         // we've read 4 bytes, now write to ring_buffer
+         if(total_bytes_read == FLOAT_SIZE){ 
             float voltage;
             memcpy(&voltage, buffer, FLOAT_SIZE);
+            //printf("[SERIAL] voltage being writting: %.6f\n", voltage);  // print incoming data
             ring_buffer_write(rb_in, voltage);
-            printf("Voltage: %.2f\n", voltage);  // print incoming data
+            test_counter++;
+            //usleep(500);       // 2.5kHz data stream
          }
          //if(test_counter==test_max_counter) break;
+
+         //measure how fast data is being read from serial port
+         // Note: this gives about 2100 Hz (taken May 27 2025)
+         /*
+         time_t now = time(NULL);
+         if (now > last_time){
+            printf("[SERIAL] Floats per second: %d\n", test_counter);
+            test_counter = 0;
+            last_time = now;
+         }
+        */
+        
       }
 }
 
