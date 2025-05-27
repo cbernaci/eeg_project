@@ -67,7 +67,7 @@ int main(){
    }
 
      // this doesn't make a difference
-//   usleep(13000000); // wait 13 s for buffer to fill up
+   usleep(5000000); // wait 0.5 s for buffer to fill up
 
    // 3. start Metal + Appkit visualization that reads from buffer
    // note, this is using the main thread, no need to create one
