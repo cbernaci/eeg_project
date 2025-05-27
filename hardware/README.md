@@ -45,7 +45,6 @@ Check the arduino sketch /eeg_project/firmware/arduino_read_square_wave/arduino_
 to see how to generate the square wave. 
 
 ### Pic of Circuit:
-
 <img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
 
 ### Pic of Signal:
@@ -56,3 +55,8 @@ around with prescaler settings in the ADC, delays in both the sketch and the ser
 was unable to get it to sample at the right rate. Moved on in the interest of time. 
 
 
+## Low-Pass Filter Circuit
+In theory, it's possible to turn the square wave into a sine wave.  Here we will examine this by passing the square
+wave from above into a simple RC circuit, also called a 'low-pass filter' circuit.  This consists of a resistor 
+connected in series with a capacitor. 
+<img src="./RC_circuit_drawing.png" title="Serial RC Circuit." width="300"/>
