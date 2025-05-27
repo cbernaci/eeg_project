@@ -73,5 +73,5 @@ between about 1.3 V to 3.7 V.
  
 Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino) as above.
 ### Pic of Circuit:
-<img src="./RC_breadboard_pic.png" title="Breadboard with RC circuit." width="300"/>
+<img src="./RC_breadboard_pic.png" title="Breadboard with RC circuit." width="600"/>
 
