@@ -130,7 +130,7 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
          if(total_bytes_read == FLOAT_SIZE){ 
             float voltage;
             memcpy(&voltage, buffer, FLOAT_SIZE);
-            //printf("[SERIAL] voltage being writting: %.6f\n", voltage);  // print incoming data
+//            printf("[SERIAL] voltage being written: %.6f\n", voltage);  // print incoming data
             ring_buffer_write(rb_in, voltage);
             test_counter++;
             //usleep(500);       // 2.5kHz data stream
@@ -139,14 +139,17 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
 
          //measure how fast data is being read from serial port
          // Note: this gives about 2100 Hz (taken May 27 2025)
-         /*
-         time_t now = time(NULL);
-         if (now > last_time){
+        /* 
+         time_t now = time(NULL);  
+         // condition is true only once per second, so this triggers a count
+         // of the number of reads per second bc test_counter is incremented
+         // right after a read. 
+         if (now > last_time){  
             printf("[SERIAL] Floats per second: %d\n", test_counter);
             test_counter = 0;
             last_time = now;
          }
-        */
+        */ 
         
       }
 }

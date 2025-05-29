@@ -121,6 +121,53 @@ bool ring_buffer_write(ring_buffer *rb, float32_t value){
 }
 
 /**
+ * Write a float value to the tail of the ring buffer, allow for overwrite.
+ *
+ * rb is pointer to the ring buffer instance.
+ * value is the float value to be written into the buffer at 
+ * the tail location, tail is then incremented.
+ * There will always be a successful write, since we overwrite if
+ * the buffer is full, so return true signifies something was written,
+ * return false signifies the thread is locked and the buffer cannot
+ * be accessed. 
+ */
+
+bool ring_buffer_overwrite(ring_buffer *rb, float32_t value){
+   int retries = 0;
+
+   // buffer is locked unless a deadlock arises
+   while (pthread_mutex_trylock(&rb->lock) != 0){
+      retries++;
+      if (retries >= 100000){
+         fprintf(stderr, "[WRITE] Mutex timeout! Possible deadlock.\n");
+         return false;
+      }
+      if (retries % 1000 == 0){
+         printf("[READ] .. waiting for lock after %d retries \n", retries);
+      }
+      usleep(10); // give other threads a chance
+   }
+   // lock the buffer
+   //pthread_mutex_lock(&rb->lock);
+
+   // overwrite if buffer is full
+   if(ring_buffer_full(rb)){
+      // unlock rb so it can be read from elsewhere
+      pthread_mutex_unlock(&rb->lock);
+      return false;
+   }
+   // if not, add value to tail 
+   rb->buffer[rb->tail] = value;
+   rb->curr_num_values++;
+   // tail increments or wraps around
+   rb->tail = (rb->tail + 1) % rb->max_num_values; 
+
+   // unlock rb so it can be written to elsewhere
+   pthread_mutex_unlock(&rb->lock);  
+   return true;
+}
+
+/**
  * Read a value from the head of the ring buffer.
  *
  * rb is pointer to the ring buffer instance.

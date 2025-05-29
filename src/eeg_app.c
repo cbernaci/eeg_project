@@ -25,7 +25,7 @@
 #include "visualization.h"    // metal+AppKit 
 #include "test_helpers.h"
 
-#define BUFFER_CAPACITY 10000
+#define BUFFER_CAPACITY 100000
 
 volatile sig_atomic_t keep_running = 1;
 
@@ -66,8 +66,9 @@ int main(){
       exit(1);
    }
 
-     // this doesn't make a difference
-   usleep(5000000); // wait 0.5 s for buffer to fill up
+   // for write rate of 2kHz and buffer capacity of 10,000
+   // wait 5s for buffer to fill 
+   usleep(5000000); // wait 5.0 s for buffer to fill up 
 
    // 3. start Metal + Appkit visualization that reads from buffer
    // note, this is using the main thread, no need to create one

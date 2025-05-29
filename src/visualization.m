@@ -143,18 +143,34 @@ void initMetal(){
  */ 
 void updateVertices(ring_buffer *rb){
    //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
+
+   static time_t last_time = 0;  // for measuring read rate
+   static int test_counter = 0;           // for measuring read rate
    int num_avail_points = rb->curr_num_values;
    int num_to_plot = (num_avail_points < NUM_POINTS) ? num_avail_points : NUM_POINTS;
+
+   if (last_time == 0){
+      last_time = time(NULL);
+   }
+
    for (int i = 0; i < num_to_plot; i++){
-   //for (int i = num_to_plot; i < NUM_POINTS; i++){
       float y = 0.0f;
       ring_buffer_read(rb, &y);
-      //printf("[VISUALIZER] value read from ring buffer is %.6f\n", y);
+      test_counter++;
+     // printf("[VISUALIZER] value read from ring buffer is %.6f\n", y);
       float x = (float)i / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
       //float x = (float)i / (NUM_POINTS - 1);             // 0 to +1
       //y = 0.5f * sinf(6.0f * (x + phase)); // sine wave
       //y = display_buffer[i];
       vertices[i].position = (vector_float2){ x, y};
+
+      time_t now = time(NULL);
+      if (now > last_time){
+         printf("[VISUALIZER] Floats read per second: %d\n", test_counter);
+         test_counter = 0;
+         last_time = now;
+      }
+  
    }
 }
 
@@ -220,13 +236,13 @@ void start_visualization(ring_buffer *rb) {
       [window.contentView setWantsLayer:YES];
       [NSApp activateIgnoringOtherApps:YES]; // bring to front 
       // animation loop
-      NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/8.0
+      NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/20.0
                                                         repeats:YES
                                                         block:^(NSTimer * _Nonnull time){
          if (!keep_running){
             [NSApp terminate:nil];
          }
-
+//         printf("[CALLING UPDATE VERTICES]\n");
          updateVertices(rb);
          drawFrame();
       }];
