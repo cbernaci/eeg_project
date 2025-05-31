@@ -28,7 +28,7 @@ And the inverse of this gives the amount of time for one clock cycle:
 
 ADC Clock cycle period = 1 / 125 kHz = 8 microseconds
 
-But it takes 13 clock cycles for a single anaglog-to-digital-conversion, which gives
+But it takes 13 clock cycles for a single analog-to-digital-conversion, which gives
 
 Time for one conversion = 13 * 8 microsecond = 104 microseconds 
 
