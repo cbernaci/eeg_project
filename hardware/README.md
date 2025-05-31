@@ -48,10 +48,6 @@ to see how to generate the square wave.
 ### Pic of Signal:
 <img src="./square_wave_viz.png" title="EEG Visualizer for Square Wave." width="600"/>
 
-The square wave, when visualized, does not appear to have a 50% duty cycle.  I tried playing 
-around with prescaler settings in the ADC, delays in both the sketch and the serial reading but
-was unable to get it to sample at the right rate. Moved on in the interest of time. 
-
 
 ## Low-Pass Filter Circuit
 In theory, it's possible to turn the square wave into a sine wave.  Here we will examine this by passing the square
