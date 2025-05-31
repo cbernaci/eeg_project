@@ -36,10 +36,8 @@ Which gives a sampling rate (ignoring first sample which takes 25 clock cycles t
 
 Pin A0 sampling rate ~ 1 / 104 microseconds = 9.6 kHz.
 
-Which should be more than fast enough to sample a 490 Hz square wave to avoid aliasing. So..I'm 
-not sure why the waveform that is recorded looks so uneven. I don't think it's due to the SW pipeline
-because when I print the voltages to the terminal, before they even get passed to the ring buffer
-or visualized, they are not evenly distributed between 0V and 5V. 
+Which is more than fast enough to sample a 490 Hz square wave to avoid aliasing. We can see from the picture of
+the signal below that it is a square wave with the correct duty cycle. I should add a y-axis into the EEG visualizater (TODO). 
 
 Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
@@ -48,7 +46,7 @@ to see how to generate the square wave.
 <img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
 
 ### Pic of Signal:
-<img src="./square_wave.png" title="EEG Visualizer for Square Wave." width="600"/>
+<img src="./square_wave_viz.png" title="EEG Visualizer for Square Wave." width="600"/>
 
 The square wave, when visualized, does not appear to have a 50% duty cycle.  I tried playing 
 around with prescaler settings in the ADC, delays in both the sketch and the serial reading but
