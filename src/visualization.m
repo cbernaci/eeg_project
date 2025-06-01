@@ -52,6 +52,7 @@ typedef struct {
 } Vertex;
 
 Vertex vertices[NUM_POINTS];
+Vertex reordered_vertices[NUM_POINTS];
 
 // compile a simple shader
 NSString* shaderSource = @"\
@@ -70,11 +71,15 @@ fragment float4 fragment_main(){         \n\
 }                                        \n\
 ";
 
-// global def of phase of sine wave, used in updateVertices()
+// global def of phase of sine wave, used in updateAllVertices()
+// and updateOneVertex
 float phase = 0.0f; // phase of sine wave
 
 // global buffer for displayed y-values
 float display_buffer[NUM_POINTS] = {0};
+
+// to keep track of which vertex to draw up to
+int num_points_filled = 0;
 
 void initMetal(){
    // device is main interface to GPU
@@ -141,7 +146,7 @@ void initMetal(){
  * Once per frame, fill the vertices array with either a sine wave (if testing)
  * or data from the ring_buffer which is holding the serial input
  */ 
-void updateVertices(ring_buffer *rb){
+void updateAllVertices(ring_buffer *rb){
    //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
 
    static time_t last_time = 0;  // for measuring read rate
@@ -166,11 +171,45 @@ void updateVertices(ring_buffer *rb){
 
       time_t now = time(NULL);
       if (now > last_time){
-         printf("[VISUALIZER] Floats read per second: %d\n", test_counter);
+//         printf("[VISUALIZER] Floats read per second: %d\n", test_counter);
          test_counter = 0;
          last_time = now;
       }
   
+   }
+}
+
+/*
+ * Once per frame, change one vertex in the array with either a sine wave (if testing)
+ * or data from the ring_buffer which is holding the serial input
+ * This siumlates a point scrolling to the right and wrapping around, with all 
+ * other points in the frame persisting. 
+ */ 
+void updateOneVertex(ring_buffer *rb){
+   //printf("number of values in ring buffer is %d\n", rb->curr_num_values);
+
+   // index of vertex to be drawn, needs to persist across frames
+   static int draw_index = 0;
+   float y = 0.0f;
+
+   if (ring_buffer_read(rb, &y)) {
+      // printf("[VISUALIZER] value read from ring buffer is %.6f\n", y);
+      float x = (float)draw_index / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
+      vertices[draw_index].position = (vector_float2){ x, y};
+      draw_index = (draw_index + 1) % NUM_POINTS; // wraparound
+      if (num_points_filled < NUM_POINTS){
+         num_points_filled++;
+      }
+/*
+      for (int i = 0; i < num_points_filled; i++){
+         int src_index = (draw_index + i) % NUM_POINTS;
+         reordered_vertices[i] = vertices[src_index];
+      }
+
+      for (int i = num_points_filled; i < NUM_POINTS; i++){
+         reordered_vertices[i] = (Vertex){{0.0f, 0.0f}};
+      }
+*/
    }
 }
 
@@ -195,8 +234,10 @@ void drawFrame(){
 
    [encoder setRenderPipelineState:pipelineState];
    [encoder setVertexBytes:vertices length:sizeof(vertices) atIndex:0];
+   //[encoder setVertexBytes:reordered_vertices length:sizeof(reordered_vertices) atIndex:0];
    // where green sine wave gets drawn
-   [encoder drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:0 vertexCount:NUM_POINTS];
+   //[encoder drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:0 vertexCount:NUM_POINTS];
+   [encoder drawPrimitives:MTLPrimitiveTypeLineStrip vertexStart:0 vertexCount:num_points_filled];
    [encoder endEncoding];
 
    [commandBuffer presentDrawable:drawable];
@@ -236,14 +277,15 @@ void start_visualization(ring_buffer *rb) {
       [window.contentView setWantsLayer:YES];
       [NSApp activateIgnoringOtherApps:YES]; // bring to front 
       // animation loop
-      NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/20.0
+      NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/12.0
                                                         repeats:YES
                                                         block:^(NSTimer * _Nonnull time){
          if (!keep_running){
             [NSApp terminate:nil];
          }
 //         printf("[CALLING UPDATE VERTICES]\n");
-         updateVertices(rb);
+         //updateAllVertices(rb);
+         updateOneVertex(rb);
          drawFrame();
       }];
 

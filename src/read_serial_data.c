@@ -130,7 +130,7 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
          if(total_bytes_read == FLOAT_SIZE){ 
             float voltage;
             memcpy(&voltage, buffer, FLOAT_SIZE);
-//            printf("[SERIAL] voltage being written: %.6f\n", voltage);  // print incoming data
+            printf("[SERIAL] voltage being written: %.6f\n", voltage);  // print incoming data
             ring_buffer_write(rb_in, voltage);
             test_counter++;
             //usleep(500);       // 2.5kHz data stream
@@ -238,7 +238,7 @@ void read_serial_data(ring_buffer *rb){
    // fd = 3 (/dev/tty.usbserial, our serial port)
 
    int fd = open(SERIAL_PORT, O_RDWR | O_NOCTTY);
-   printf("fd = %d\n", fd);
+   //printf("fd = %d\n", fd);
    if (fd == -1) {
       perror("Error opening serial port");
    }

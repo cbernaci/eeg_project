@@ -28,14 +28,19 @@
 #define BUFFER_CAPACITY 100000
 
 volatile sig_atomic_t keep_running = 1;
+ring_buffer *eeg_buffer_global = NULL;
 
 /*
  * This function handles interruptions in the 
- * serial data stream. It responds to 
+ * serial data stream from keyboard. It also cleans 
+ * up the heap. 
  */
 void handle_sigint(int sig){
    (void)sig;
    keep_running = 0;
+      if(eeg_buffer_global){
+         SAFE_DESTROY(eeg_buffer_global);
+      }
    printf("SIGINT received. Stopping ...\n");
 }
 
@@ -56,10 +61,14 @@ int main(){
    signal(SIGINT, handle_sigint); 
 
    // 1. setup and initialize a single ring buffer
+   //ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
    ring_buffer *eeg_buffer = malloc(sizeof(ring_buffer));
+   //eeg_buffer_global = eeg_buffer;
+   //ring_buffer_init(eeg_buffer_global, BUFFER_CAPACITY);
    ring_buffer_init(eeg_buffer, BUFFER_CAPACITY);
 
    // 2. start producer thread that writes to ring buffer
+   printf("[START READ SERIAL THREAD] ================= \n");
    pthread_t prod;
    if (pthread_create(&prod, NULL, producer_thread, eeg_buffer) != 0){
       perror("Faled to create producer thread\n");
@@ -68,17 +77,16 @@ int main(){
 
    // for write rate of 2kHz and buffer capacity of 10,000
    // wait 5s for buffer to fill 
-   usleep(5000000); // wait 5.0 s for buffer to fill up 
+   //usleep(5000000); // wait 5.0 s for buffer to fill up 
 
    // 3. start Metal + Appkit visualization that reads from buffer
    // note, this is using the main thread, no need to create one
+   printf("[START VISUALIZATION THREAD] ================= \n");
    start_visualization(eeg_buffer);
    
-   printf("about to call pthread_join ... \n");  
+   printf("[JOINING THREADS]\n");  
    // 4. tell main thread to wait until producer thread finishes
    pthread_join(prod, NULL);
 
-   // 5. cleanup heap
-   SAFE_DESTROY(eeg_buffer);
    return 0;
 }
