@@ -52,6 +52,7 @@ void *producer_thread(void *arg){
    //sine_data_stream(rb);
    //read_physionet_data(rb);
    read_serial_data(rb);
+   //read_low_pass_data(rb);
    return NULL;
 }
 

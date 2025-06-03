@@ -11,8 +11,8 @@
 #include "eeg_config.h"
 #include "ring_buffer.h"
 
-#define SERIAL_PORT "/dev/cu.usbmodem11301"
-#define BAUD_RATE B115200
+#define SERIAL_PORT "/dev/cu.usbmodem1301"
+#define BAUD_RATE 115200
 #define FLOAT_SIZE sizeof(float)
 
 // timing for debugging
@@ -95,11 +95,55 @@ void read_physionet_data(ring_buffer *rb){
    }
 }
 
+
+/*
+ * A function writes to a ring buffer data I took from a low-pass filter
+ * circuit sampled at ~2100 Hz for about 1 minute. 
+ * It therefore contains about 130K readings 
+ *
+*/
+void read_low_pass_data(ring_buffer *rb) {
+    // 1. Open the file
+    const char *filename = "data/low-pass-circuit/voltage_log.txt";
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Error opening voltage_log.txt");
+        return;
+    }
+
+    // 2. Read each line, parse float, write to ring buffer
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int line_number = 0;
+
+    while ((read = getline(&line, &len, file)) != -1 && keep_running) {
+        float value = atof(line);  // Converts string to float
+        ring_buffer_write(rb, value);
+
+        line_number++;
+        // Optional: Print for debugging
+        // printf("[FILE READER] Line %d: %.6f\n", line_number, value);
+
+        usleep(500);  // ~2kHz playback rate (1000000 / 2000 = 500 μs)
+    }
+
+    // Cleanup
+    free(line);
+    fclose(file);
+}
+
 /*
  * This function reads the serial stream and writes 
  * to a ring_buffer
  */
 void serial_reader(int fd_in, ring_buffer *rb_in){
+      // debugging step - open file for logging voltages for later plotting 
+      FILE *log_file = fopen("voltage_log.txt", "w");
+      if (!log_file) {
+         perror("Failed to open voltage_log.txt");
+         return;
+      }
 
       char buffer[FLOAT_SIZE];
       int test_counter = 0;  
@@ -132,6 +176,10 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
             memcpy(&voltage, buffer, FLOAT_SIZE);
             printf("[SERIAL] voltage being written: %.6f\n", voltage);  // print incoming data
             ring_buffer_write(rb_in, voltage);
+            // write the voltages to a file also for later plotting
+            fprintf(log_file, "%.6f\n", voltage);
+
+ 
             test_counter++;
             //usleep(500);       // 2.5kHz data stream
          }
@@ -152,6 +200,7 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
         */ 
         
       }
+      fclose(log_file);
 }
 
 void setup_serial(int fd){
