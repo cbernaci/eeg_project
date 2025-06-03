@@ -30,6 +30,17 @@ void sine_data_stream(ring_buffer *rb);
 void read_physionet_data(ring_buffer *rb);
 
 /*
+ * @brief Fills a ring buffer with low pass filter data
+ *
+ * The function fills a ring buffer with data sampled from a low-
+ * pass filter.
+ *
+ * @param rb Pointer to a ring buffer instance
+ * @return void
+*/
+void read_low_pass_data(ring_buffer *rb);
+
+/*
  * @brief Fills a ring buffer with serial port data
  *
  * The function fills a ring buffer with data from the USB 
