@@ -194,10 +194,12 @@ void updateOneVertex(ring_buffer *rb){
 
    if (ring_buffer_read(rb, &y)) {
       // printf("[VISUALIZER] value read from ring buffer is %.6f\n", y);
+      float scale_x = 1.0;
       //float y_normalized = (y - 3.0f) / 3.0f; 
       float y_normalized = (y - 2.5f) / 2.5f; 
-      //float x = (float)draw_index / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
-      float x = (float)draw_index / (NUM_POINTS - 1) * 3.0f - 1.0f; // -1 to +1
+      float x = (float)draw_index / (NUM_POINTS - 1) * 2.0f - 1.0f; // -1 to +1
+//      x *= scale_x;
+      //float x = (float)draw_index / (NUM_POINTS - 1) * 3.0f - 1.0f; // -1 to +1
       vertices[draw_index].position = (vector_float2){ x, y_normalized};
       draw_index = (draw_index + 1) % NUM_POINTS; // wraparound
       if (num_points_filled < NUM_POINTS){
