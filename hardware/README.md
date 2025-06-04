@@ -69,3 +69,9 @@ Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_
 ### Pic of Circuit:
 <img src="./RC_breadboard_pic.png" title="Breadboard with RC circuit." width="600"/>
 
+Measuring the voltage across the capacitor and visualizing, we see that the voltage is modulated away from a square wave to something
+resembling more sinusoidal (although it's still rather sharp and irregular). 
+### Pic of Signal:
+<img src="./RC_circuit_viz.png" title="EEG Visualizer for Voltage across Capacitor in RC circuit." width="600"/>
+
+
