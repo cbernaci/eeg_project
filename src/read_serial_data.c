@@ -11,7 +11,7 @@
 #include "eeg_config.h"
 #include "ring_buffer.h"
 
-#define SERIAL_PORT "/dev/cu.usbmodem1301"
+#define SERIAL_PORT "/dev/cu.usbmodem11301"
 #define BAUD_RATE 115200
 #define FLOAT_SIZE sizeof(float)
 
