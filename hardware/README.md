@@ -42,10 +42,14 @@ the signal below that it is a square wave with the correct duty cycle. I should 
 Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
 
+Now, a bit later, I ended up using an AWG for generating the square wave, so the pics below show this. But I leave the
+documentation of the Uno approach for future reference. The AWG generated a cleaner signal than the Uno. 
+
 ### Pic of Circuit:
 <img src="./square_wave_uno.png" title="Uno Wiring for Square Wave." width="300"/>
 
 ### Pic of Signal:
+** NOTE: This is using the AWG as the input waveform, not the UNO **
 <img src="./square_wave_viz.png" title="EEG Visualizer for Square Wave." width="600"/>
 
 
@@ -65,9 +69,10 @@ between about 1.3 V to 3.7 V.
 <img src="./square_wave_freq_drawing.png" title="Square wave before and after filter." width="900"/>
 
  
-Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino) as above.
+(Obsolete: Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino) as above.) The pic 
+below was generated using the AWG in the lab. 
 ### Pic of Circuit:
-<img src="./RC_breadboard_pic.png" title="Breadboard with RC circuit." width="600"/>
+<img src="./RC_breadboard_pic_externalAWG.jpg" title="Breadboard with RC circuit." width="600"/>
 
 Measuring the voltage across the capacitor and visualizing, we see that the voltage is modulated away from a square wave to something
 resembling more sinusoidal (although it's still rather sharp and irregular). 
