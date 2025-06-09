@@ -72,7 +72,7 @@ between about 1.3 V to 3.7 V.
 (Obsolete: Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino) as above.) The pic 
 below was generated using the AWG in the lab. 
 ### Pic of Circuit:
-<img src="./RC_breadboard_pic_externalAWG.jpg" title="Breadboard with RC circuit." width="600"/>
+<img src="./RC_breadboard_externalAWG_pic.jpg" title="Breadboard with RC circuit." width="600"/>
 
 Measuring the voltage across the capacitor and visualizing, we see that the voltage is modulated away from a square wave to something
 resembling more sinusoidal (although it's still rather sharp and irregular). 
