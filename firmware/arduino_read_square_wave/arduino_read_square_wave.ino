@@ -17,9 +17,9 @@ void setup() {
    // start serial communication at 115200 baud rate
    Serial.begin(115200); 
    // configure pin 9 as output
-   pinMode(outputPin, OUTPUT);    
+   //pinMode(outputPin, OUTPUT);    
    // generate 50% duty cycle square wave from pin 9
-   analogWrite(outputPin, dutyCycle); 
+   //analogWrite(outputPin, dutyCycle); 
 }
 // every sketch must have loop() function
 // runs continuously after setup() has finished
