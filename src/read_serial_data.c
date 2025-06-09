@@ -103,6 +103,7 @@ void read_physionet_data(ring_buffer *rb){
  *
 */
 void read_low_pass_data(ring_buffer *rb) {
+    // uncomment if want to take debugging data
     // 1. Open the file
     const char *filename = "data/low-pass-circuit/voltage_log.txt";
     FILE *file = fopen(filename, "r");
@@ -139,11 +140,13 @@ void read_low_pass_data(ring_buffer *rb) {
  */
 void serial_reader(int fd_in, ring_buffer *rb_in){
       // debugging step - open file for logging voltages for later plotting 
+      /*
       FILE *log_file = fopen("voltage_log.txt", "w");
       if (!log_file) {
          perror("Failed to open voltage_log.txt");
          return;
       }
+      */
 
       char buffer[FLOAT_SIZE];
       int test_counter = 0;  
@@ -177,7 +180,7 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
             printf("[SERIAL] voltage being written: %.6f\n", voltage);  // print incoming data
             ring_buffer_write(rb_in, voltage);
             // write the voltages to a file also for later plotting
-            fprintf(log_file, "%.6f\n", voltage);
+            //fprintf(log_file, "%.6f\n", voltage);
 
  
             test_counter++;
@@ -200,7 +203,7 @@ void serial_reader(int fd_in, ring_buffer *rb_in){
         */ 
         
       }
-      fclose(log_file);
+      //fclose(log_file);
 }
 
 void setup_serial(int fd){
