@@ -1,9 +1,5 @@
 # Circuit Documentation
 Here I document the circuits tested at each step while building the EEG. 
-
- then using either a ready-made amplification
-board (e.g. openBCI Cyton, TI ADS1299  Evaluation Board) for collecting EEG data. 
-
 The order of progression for the circuits are:
 
 1. [square wave only circuit for SW data capture](/1_data_capture_test)
@@ -14,5 +10,6 @@ RC circuit (low-pass filter)
 3. [instrumentation amplifier](/3_instrumentation_amplifier_test) 
 a breadboarded instrumentation amplifier circuit built from scratch with op-amps, resistors,
 external DC power supply, AWG, and measured with an oscilloscope
-4. board solution
+4. board solution - e.g. openBCI Cyton, TI ADS1299  Evaluation Board for collecting EEG data. 
+
 
