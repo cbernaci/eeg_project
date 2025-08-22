@@ -37,6 +37,7 @@ eeg_project/
 ├── tests/     # unit, edge case, and stress tests 
 ├── build/     # compiled binaries
 ├── firmware/  # Arduino code for signal acquisition
+├── hardware/  # circuit testing
 ├── Makefile   # build tests or application
 └── README.md 
 ```
