@@ -29,8 +29,8 @@ the signal below that it is a square wave with the correct duty cycle. I should 
 Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
 
-Now, a bit later, I ended up using an AWG for generating the square wave, so the pics below show this. But I leave the
-documentation of the Uno approach for future reference. The AWG generated a cleaner signal than the Uno. 
-<img src="./square_wave_AWG.png" title="Uno Wiring for Square Wave." width="400"/>
+Now, a bit later, I ended up using an AWG for generating the square wave, so the pic below show this. 
+The AWG generated a cleaner signal than the Uno. 
+<img src="./square_wave_AWG.png" title="Uno Wiring for Square Wave." width="600"/>
 
 
