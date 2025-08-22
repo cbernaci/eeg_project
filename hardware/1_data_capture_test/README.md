@@ -1,5 +1,4 @@
-
-## Square-Wave Only Circuit
+# Square-Wave Only Circuit
 For the purpose of testing the data capture (the crude oscilloscope that I wrote in Metal), the Arduino Uno
 is used to generate a square wave with 50% duty cycle from pin 9. Pin 9 is then 
 connected directly to Pin A0 which sends the signal to the ADC on the ATmega328P chip and then 
