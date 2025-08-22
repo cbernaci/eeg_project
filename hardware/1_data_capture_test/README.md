@@ -26,7 +26,7 @@ the signal below that it is a square wave with the correct duty cycle. I should 
 
 <img src="./square_wave_viz.png" title="EEG Visualizer for Square Wave." width="600"/>
 
-Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
+Check the [arduino sketch](../../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
 to see how to generate the square wave. 
 
 Now, a bit later, I ended up using an AWG for generating the square wave, so the pic below show this. 
