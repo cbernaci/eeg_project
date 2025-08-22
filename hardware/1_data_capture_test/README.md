@@ -32,6 +32,7 @@ to see how to generate the square wave.
 Now, a bit later, I ended up using an AWG for generating the square wave, so the pic below show this. 
 The AWG generated a cleaner signal than the Uno. 
 
+
 <img src="./square_wave_AWG.png" title="Uno Wiring for Square Wave." width="600"/>
 
 
