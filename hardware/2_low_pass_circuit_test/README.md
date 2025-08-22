@@ -1,4 +1,4 @@
-## Low-Pass Filter Circuit
+# Low-Pass Filter Circuit
 In theory, it's possible to turn the square wave into a sine wave.  Here we will examine this by passing the square
 wave from above into a simple RC circuit, also called a 'low-pass filter' circuit.  This consists of a resistor 
 connected in series with a capacitor. 
@@ -16,12 +16,12 @@ between about 1.3 V to 3.7 V.
  
 (Obsolete: Use the same [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino) as above.) The pic 
 below was generated using the AWG in the lab. 
-### Pic of Circuit:
+## Pic of Circuit:
 <img src="./RC_breadboard_externalAWG_pic.jpg" title="Breadboard with RC circuit." width="600"/>
 
 Measuring the voltage across the capacitor and visualizing, we see that the voltage is modulated away from a square wave to something
 resembling more sinusoidal (although it's still rather sharp and irregular). 
-### Pic of Signal:
+## Pic of Signal:
 <img src="./RC_circuit_viz.png" title="EEG Visualizer for Voltage across Capacitor in RC circuit." width="600"/>
 
 
