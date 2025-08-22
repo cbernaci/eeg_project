@@ -1,6 +1,7 @@
 
 ## Square-Wave Only Circuit
-The Arduino Uno is used to generate a square wave with 50% duty cycle from pin 9. Pin 9 is then 
+For purposes of testing the data capture (the crude oscilloscope that I wrote in Metal), the Arduino Uno
+is used to generate a square wave with 50% duty cycle from pin 9. Pin 9 is then 
 connected directly to Pin A0 which sends the signal to the ADC on the ATmega328P chip and then 
 to the serial port. The ATmega328P runs at 16MHz which is the clock speed for the ADC. However, the 
 ADC clock speed can be divided by a prescaler value, which by default is 128. So, the ADC clock is 
