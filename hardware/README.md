@@ -1,4 +1,4 @@
-# ⚡️ 🧲 Circuit Documentation
+# ⚡️ 🧲 Circuit Documentation  🧲 ⚡️
 Here I document the circuits tested at each step while building the EEG. 
 The order of progression for the circuits are:
 
