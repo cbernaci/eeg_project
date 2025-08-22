@@ -5,7 +5,7 @@ connected in series with a capacitor.
 
 <img src="./RC_circuit_drawing.png" title="Serial RC Circuit." width="600"/>
 
-I've chosen R = 1 kOhm   and C = 1 microFarad which gives a time constant tau = 1ms. This should be very close to the frequency of
+I've chosen R = 1 kOhm   and C = 1 microFarad which gives a time constant tau = 1ms. This should correspond closely to the frequency of
 the square wave which is 490 kHz coming from pin 9 of the Uno. (Note, this is not the sampling frequency as discussed above).
 Square wave frequency of 490 Hz corresponds to a period of 2.04 ms, so having a time constant of 1ms gives us the right amount of timing
 to modulate one pulse of the square wave. [Working through the calculation](RC_circuit.pdf)  we can see that our smoothed square wave will oscillate 
