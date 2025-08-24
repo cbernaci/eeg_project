@@ -5,5 +5,6 @@ and reproduced below.
 
 <img src="./instr_amp_schematic.png" title="Instrumentation Amplifier Circuit Schematic." width="600"/>
 
+I [derived](./voltage_gain_derivation.pdf) the gain of this amplifier and verified that it matched was found in the document above.  
 
 
