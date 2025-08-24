@@ -5,6 +5,9 @@ and reproduced below.
 
 <img src="./instr_amp_schematic.png" title="Instrumentation Amplifier Circuit Schematic." width="600"/>
 
-I [derived](./voltage_gain_derivation.pdf) the gain of this amplifier and verified that it matched was found in the document above.  
+I [derived](./voltage_gain_derivation.pdf) the gain of this amplifier and verified that it matched was found in the document above. If all resisters except
+RG have the same resitance R, the gain becomes
+
+Vout = (V1-V2)(1+R/RG) 
 
 
