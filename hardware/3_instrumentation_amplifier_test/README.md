@@ -10,7 +10,7 @@ $R_G$ have the same resitance R, the gain becomes
 
 $V_\text{out} = (V_1 - V_2)\left(1 + 2\frac{R}{R_G}\right)$
 
-I chose $R=40k\Omega$ and $R=100\Omega$ which will yield a gain of about 400 times.
+I chose $R=20k\Omega$ and $R=100\Omega$ which will yield a gain of about 400 times.
 
 ## Circuit
 I wired up the circuit on a breadboard using three LM741 op-amps. These are quite old, cheap op-amps but they are all that I had. 
