@@ -1,9 +1,9 @@
 # Instrumentation Amplifier 
 
-Check the [arduino sketch](../firmware/arduino_read_square_wave/arduino_read_square_wave.ino)
+The instrumentation amplifier design is borrowed from [this writeup](../../documentation/Design_of_Instrumentation_amplifier.pdf))
 
 
-### Pic of Circuit:
-<img src="./square_wave_AWG.png" title="Uno Wiring for Square Wave." width="300"/>
+<img src="./instr_amp_schematic.png" title="Instrumentation Amplifier Circuit Schematic." width="300"/>
+
 
 
