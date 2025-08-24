@@ -18,4 +18,4 @@ These require a large DC voltage for power so this instrumetnation amplifier is 
 not willing to connect sensors from my scalp to this circuit. So, to measure the output voltage I used an oscilloscope and to simulate EEG signals I used an 
 Arbitrary Waveform Generator to create low voltage oscillating signals as input voltages $V_1$ and $V_2$.  
 
-<img src="./breadboard_farthest_view.png" title="Instrumentation Amplifier Full Setup." width="600"/>
+<img src="./breadboard_farthest_view.jpg" title="Instrumentation Amplifier Full Setup." width="600"/>
