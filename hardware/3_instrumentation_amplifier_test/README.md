@@ -21,7 +21,8 @@ Arbitrary Waveform Generator to create low voltage oscillating signals as input 
 <img src="./breadboard_farthest_view.jpg" title="Instrumentation Amplifier Full Setup." width="800"/>
 
 The DC supply is unable to output a negative voltage so to create a $-15V$ I created an artificial ground by connecting CH1+ to CH2- and wiring those both 
-to the ground of the breadboard. A schematic of this is 
+to the ground of the breadboard. CH1- is wired to the negative voltage supply (pin 4) of each op-amp and CH2+ is wired to the positive voltage supply (pin 7)
+of each op-amp.  
 
 <img src="./dc_wiring_schematic.png" title="DC Voltage Supply Setup." width="600"/>
 
