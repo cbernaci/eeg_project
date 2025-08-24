@@ -4,7 +4,7 @@ is used to generate a square wave with 50% duty cycle from pin 9. Pin 9 is then
 connected directly to Pin A0 which sends the signal to the ADC on the ATmega328P chip and then 
 to the serial port.
 
-<img src="./square_wave_uno.png" title="Arduino Uno wiring for square wave generation." width="600"/>
+<img src="./square_wave_viz.png" title="Arduino Uno wiring for square wave generation." width="600"/>
 
 ## Sampling
 The ATmega328P runs at 16MHz which is the clock speed for the ADC. However, the 
