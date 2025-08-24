@@ -6,8 +6,8 @@ and reproduced below.
 <img src="./instr_amp_schematic.png" title="Instrumentation Amplifier Circuit Schematic." width="600"/>
 
 I [derived](./voltage_gain_derivation.pdf) the gain of this amplifier and verified that it matched was found in the document above. If all resistors except
-RG have the same resitance R, the gain becomes
+$R_G$ have the same resitance R, the gain becomes
 
 $V_\text{out} = (V_1 - V_2)\left(1 + 2\frac{R}{R_G}\right)$
 
-
+I chose $R=40k\Omega$ and $R=100\Omega$
