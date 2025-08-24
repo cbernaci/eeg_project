@@ -28,7 +28,7 @@ of each op-amp via the red wires which are connected to two of the power rails o
 
 A close-up of the circuit wiring is shown below.
 
-<img src="./breadboard_closest_view.png" title="Breadboard Close-up." width="600"/>
+<img src="./breadboard_closest_view.jpg" title="Breadboard Close-up." width="600"/>
 
 
 
