@@ -8,6 +8,6 @@ and reproduced below.
 I [derived](./voltage_gain_derivation.pdf) the gain of this amplifier and verified that it matched was found in the document above. If all resistors except
 RG have the same resitance R, the gain becomes
 
-$V_\text{out} = (V_1 - V_2)\left(1 + \frac{R}{R_G}\right)$
+$V_\text{out} = (V_1 - V_2)\left(1 + 2\frac{R}{R_G}\right)$
 
 
