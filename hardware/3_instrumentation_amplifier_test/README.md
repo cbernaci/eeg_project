@@ -43,8 +43,8 @@ voltage of about 1.7Vpp on the oscilloscope. See right-hand side box on screen b
 
 <img src="./oscilloscope_msnt.jpg" title="AWG Settings." width="600"/>
 
-While this instrumentation amplifier does behave as expected, these op-amps require such a high voltage that it is not safe for connecting to either  
-a human or PC.  I also did not simulate frequencies that are within the range of brainwaves. Two things then need to be done:
+While this instrumentation amplifier does behave as expected, these op-amps require such a high voltage that it is not safe for connecting to either
+human or PC.  I also did not simulate frequencies that are within the range of brainwaves. Two things then need to be done:
 
 1. re-run with lower frequency
 2. get op-amps that can use a DC supply voltage that can be supplied by a batter. 
