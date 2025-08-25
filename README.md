@@ -51,7 +51,10 @@ To run existing tests:
 Then visually inspect for memory leaks.
 
 # 🚀 Running Application
-So far am building out the visualization pipeline. To run what exists:
+So far the data capture visualization pipeline and a proof-of-concept instrumentation amplifier are complete. The next step is to 
+create a portable, (safe), instrumentation amplifier as the one I currently tested is not portable and requires 
+too high of a DC voltage supply.  
+To run what exists:
 
 `make run-eeg`
 
