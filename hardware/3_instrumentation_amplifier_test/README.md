@@ -47,7 +47,7 @@ While this instrumentation amplifier does behave as expected, these op-amps requ
 human or PC.  I also did not simulate frequencies that are within the range of brainwaves. Two things then need to be done:
 
 1. re-run with lower frequency
-2. get op-amps that can use a DC supply voltage that can be supplied by a batter. 
+2. get op-amps that can use a DC supply voltage that can be supplied by a battery. 
 
 
 
