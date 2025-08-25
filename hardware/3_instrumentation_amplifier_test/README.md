@@ -38,7 +38,7 @@ I set CH1 and CH2 to sine waves with amplitudes,
 
 <img src="./awg_channel12_view.jpg" title="AWG Settings." width="600"/>
 
-With a gain of about 400, the waveform measured by the ocilloscope should have a voltage of approximately 4mVpp * 400 = 1.6Vpp. 
+With a gain of about 400, the waveform measured by the ocilloscope should have a voltage of approximately 4mVpp * 400 = 1.6Vpp.  
 
 <img src="./oscilloscope_msnt.jpg" title="AWG Settings." width="600"/>
 
