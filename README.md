@@ -76,7 +76,6 @@ will require help from other experts, and is saved for another project.
 
 ### Author: 
 Catherine Bernaciak PhD
-cbernaci@andrew.cmu.edu
 
 
 
