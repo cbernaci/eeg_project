@@ -26,9 +26,23 @@ of each op-amp via the red wires which are connected to two of the power rails o
 
 <img src="./dc_wiring_schematic.png" title="DC Voltage Supply Setup." width="600"/>
 
-A close-up of the circuit wiring is shown below.
+A close-up of the circuit wiring is shown below. 
 
 <img src="./breadboard_closest_view.jpg" title="Breadboard Close-up." width="600"/>
+
+The white wires are coming from CH1 and CH2 of the AWGs which are stand-ins for real EEG signals. Since this circuit operates differentially, 
+I set CH1 and CH2 to sine waves with amplitudes, 
+
+* 2mVpp, 1kHZ
+* 6mVpp, 1kHz
+
+<img src="./awg_channel12_view.jpg" title="AWG Settings." width="600"/>
+
+With a gain of about 400, the waveform measured by the ocilloscope should have a voltage of approximately 4mVpp * 400 = 1.6Vpp. 
+
+<img src="./oscilloscope_msnt.jpg" title="AWG Settings." width="600"/>
+
+
 
 
 
