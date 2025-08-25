@@ -38,13 +38,16 @@ I set CH1 and CH2 to sine waves with amplitudes,
 
 <img src="./awg_channel12_view.jpg" title="AWG Settings." width="600"/>
 
-With a gain of about 400, the waveform measured by the ocilloscope should have a voltage of approximately 4mVpp * 400 = 1.6Vpp.  
+With a gain of about 400, the waveform measured by the ocilloscope should have a voltage of approximately 4mVpp * 400 = 1.6Vpp.  I observed a 
+voltage of about 1.7Vpp on the oscilloscope. See right-hand side box on screen below:
 
 <img src="./oscilloscope_msnt.jpg" title="AWG Settings." width="600"/>
 
+While this instrumentation amplifier does behave as expected, these op-amps require such a high voltage that it is not safe for connecting to either  
+a human or PC.  I also did not simulate frequencies that are within the range of brainwaves. Two things then need to be done:
 
-
-
+1. re-run with lower frequency
+2. get op-amps that can use a DC supply voltage that can be supplied by a batter. 
 
 
 
